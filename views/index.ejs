@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+    <title>Krishak - Home</title>
+</head>
+<body>
+    <header>
+        <%- include('partials/navbar') %>
+    </header>
+
+    <!-- ----LAYOUT---- -->
+
+    <div class="layout">
+        <%- include('partials/sidebar') %>
+
+        <main class="main-content">     <!--ye main content ka page hai  -->
+
+            <div class="dashboard">                  
+                <h1>Namaskar <span>किसान भाइयों!</span></h1>
+                <p class="welcome">अपने खेत की सेहत पर नज़र रखें, सही सलाह पाएं और बेहतर फैसला लें।</p>
+
+                <section class="hero-poster">
+                    <div></div>
+                </section>
+
+                <div class="card-container">
+                    <div class="card">
+                        <h3>Detect Disease</h3>
+                        <p>Upload a crop photo and instantly knowthe exact disease and treatment.</p>
+                        <a href="/upload" class="btn">Upload photo</a>
+                    </div>
+
+                    <div class="card">
+                        <h3>Government Schemes</h3>
+                        <p>View all government schemes according to your state</p>
+                        <a href="/upload" class="btn">See Schemes</a>
+                    </div>
+
+                    <div class="card">
+                        <h3>Expert Video Call</h3>
+                        <p>Conect via video call for direct advice agricultural experts</p>
+                        <a href="/upload" class="btn">Startcall</a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <%- include('partials/footer') %>
+    
+    <%- include('partials/script') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</body>
+</html>

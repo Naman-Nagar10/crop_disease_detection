@@ -1,0 +1,67 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    background: #f4f7f6;
+}
+
+
+/* =========================
+   SIDEBAR SPACE
+========================= */
+
+.app-content {
+    margin-left: 260px;
+    min-height: 100vh;
+}
+
+
+/* main content hai */
+
+.main-content {
+    min-width: calc(100vw - 240px);
+    min-height: calc(100vh - 64px);
+    margin-left: 240px;
+
+    padding: 96px 50px 40px;
+    background-color: #f6f3ea;
+}
+
+.dashboard h1 {
+    font-weight: 600;
+    color:  #183a2a;
+    /* line-height: 1.5; */
+}
+
+.dashboard h1 span{
+    color: #5f954e;;
+}
+
+.welcome p {
+    color: #617965;
+}
+
+.hero-poster {
+    width: 100%;
+    height: 350px;
+    background-image: url(/images/image_1.png);
+    background-size: cover;
+
+    border-radius: 0.8rem;
+    border-top-right-radius: 2.5rem;
+
+    margin-bottom: 1rem;
+    /* background-position: center;
+    background-repeat: no-repeat; */
+}
+

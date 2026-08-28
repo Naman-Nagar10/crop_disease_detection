@@ -1,0 +1,218 @@
+.sidebar {
+    width: 240px;
+    height: 100vh;
+
+    top: 0;
+    left: 0;
+    position: fixed;
+
+    background: #18251f;
+    color: #ffffff;
+
+    padding: 28px 22px;
+
+    display: flex;
+    flex-direction: column;
+
+    box-sizing: border-box;
+    
+}
+
+
+/* logo */
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.08);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+}
+
+.sidebar-logo h2 {
+    margin: 0;
+
+    font-size: 21px;
+    font-weight: 600;
+}
+
+
+/* Tagline */
+
+.sidebar-tagline {
+    margin-bottom: 35px;
+}
+
+.sidebar-tagline p {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: rgba(255, 255, 255, 0.55);
+
+    line-height: 1.6;
+}
+
+
+
+/* sidebar nav */
+
+.sidebar-nav {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 9px;
+
+    letter-spacing: 2px;
+
+    color: rgba(255, 255, 255, 0.35);
+
+    margin-bottom: 12px;
+
+    padding-left: 12px;
+}
+
+
+/* sidebar item */
+
+.sidebar-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 11px 12px;
+
+    margin-bottom: 6px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    color: rgba(255, 255, 255, 0.7);
+
+    transition: all 0.2s ease;
+}
+
+/* .sidebar-item svg {
+    width: 21px;
+    height: 21px;
+
+    flex-shrink: 0;
+
+    stroke-width: 1.7;
+} */
+
+
+.sidebar-item div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.sidebar-item span {
+    font-size: 14px;
+}
+
+
+.sidebar-item small {
+    font-size: 10px;
+
+    color: rgba(255, 255, 255, 0.35);
+}
+
+
+/* Hover */
+
+.sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+
+    color: #ffffff;
+}
+
+
+/* Active */
+
+.sidebar-item.active {
+    background: rgba(255, 255, 255, 0.09);
+
+    color: #ffffff;
+}
+
+.sidebar-item.active::before {
+    content: "";
+
+    width: 3px;
+    height: 24px;
+
+    background: #a8c98b;
+
+    border-radius: 10px;
+
+    margin-left: -12px;
+}
+
+
+/* Weather */
+
+.sidebar-weather {
+    margin-top: auto;
+
+    padding: 16px 12px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+
+.sidebar-weather small {
+    display: block;
+
+    font-size: 8px;
+
+    letter-spacing: 2px;
+
+    color: rgba(255, 255, 255, 0.35);
+
+    margin-bottom: 5px;
+}
+
+
+.sidebar-weather strong {
+    font-size: 13px;
+
+    font-weight: 500;
+}
+
+
+.sidebar-weather svg {
+    width: 22px;
+    height: 22px;
+
+    color: #d8c87c;
+}

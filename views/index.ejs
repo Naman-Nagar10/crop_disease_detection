@@ -40,6 +40,15 @@
                     <div class="card" id="scan-card">
                         <h3>Detect Disease</h3>
                         <p>Upload a crop photo and instantly, <br> know the exact disease and treatment.</p>
+
+                        <button
+                            class="btn btn-success"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#scanOffcanvas"
+                            aria-controls="scanOffcanvas">
+                            Scan Crop
+                        </button>
                         
                     </div>
 
@@ -56,6 +65,9 @@
                     </div>
                     
                 </section>
+
+                <!-- Scan Offcanvas -->
+                <%- include('offcanvas/scan') %>
                 <hr>
 
 
@@ -72,7 +84,7 @@
                         <p>Live mandi prices</p>
 
                         <button
-                            class="btn btn-primary"
+                            class="btn btn-success"
                             type="button"
                             data-bs-toggle="offcanvas"
                             data-bs-target="#mandiOffcanvas"
@@ -87,7 +99,7 @@
                         <h3>Expert Suggestion</h3>
                         <p>Take expert advice</p>
                         <button
-                            class="btn btn-primary"
+                            class="btn btn-success"
                             type="button"
                             data-bs-toggle="offcanvas"
                             data-bs-target="#expertOffcanvas"
@@ -99,7 +111,7 @@
                 </section>
 
 
-                <!-- Mandi Offcanvas -->
+                <!-- Mandi/expert Offcanvas -->
                 <%- include('offcanvas/mandiprice') %>
                 <%- include('offcanvas/expertChat') %>
  

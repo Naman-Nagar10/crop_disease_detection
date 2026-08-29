@@ -12,20 +12,25 @@
     <!-- ----LAYOUT---- -->
 
     <div class="layout">
-        <%- include('partials/sidebar') %>
+        <%- include('partials/sidebar') %>       <!-- this is SIDEBAR -->
 
-        <main class="main-content">     <!--ye main content ka page hai  -->
-
+        <!-- MAIN CONTENT -->
+        <!--ye main content ka page hai  -->
+        <main class="main-content">  
+            
+            <!-- DASHBOARD  -->
             <div class="dashboard">                  
                 <h1>Namaskar <span>किसान भाइयों!</span></h1>
                 <p class="welcome">अपने खेत की सेहत पर नज़र रखें, सही सलाह पाएं और बेहतर फैसला लें।</p>
 
+                <!-- THIS IS HERO POSTER -->
                 <section class="hero-poster">
                     <div></div>
                 </section>
-
                 <hr>
 
+
+                <!-- THIS IS TOOL SECTION -->
                 <div class="tool">
                     <p class="small-heading">YOUR DAILY TOOLS</p>
                     <h2 class="medium-heading">जहाँ से खेती आगे बढ़े </h2>
@@ -35,7 +40,7 @@
                     <div class="card" id="scan-card">
                         <h3>Detect Disease</h3>
                         <p>Upload a crop photo and instantly, <br> know the exact disease and treatment.</p>
-                        <a href="/upload" class="btn">Upload photo</a>
+                        
                     </div>
 
                     <div class="card same-size" id="chat-card">
@@ -51,27 +56,52 @@
                     </div>
                     
                 </section>
-                
                 <hr>
 
+
+                <!-- THIS IS ANOTHER TOOLS SECTION -->
                 <div class="tool another-toll">
                     <p class="small-heading">ANOTHER HELPFUL TOOLS</p>
                 </div>
 
                 <section class="tool-container another-tool">
+
+                    <!-- Mandi Price Card -->
                     <div class="card" id="mandi">
-                        <h3>mandi price</h3>
-                        <p>live price </p>
-                        <a href="#" class="btn">Know price</a>
+                        <h3>Mandi Price</h3>
+                        <p>Live mandi prices</p>
+
+                        <button
+                            class="btn btn-primary"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#mandiOffcanvas"
+                            aria-controls="mandiOffcanvas">
+                            Check Mandi Price
+                        </button>
                     </div>
 
+
+                    <!-- Expert Suggestion Card -->
                     <div class="card same-size" id="Expert">
                         <h3>Expert Suggestion</h3>
                         <p>Take expert advice</p>
-                        <a href="#" class="btn">Ask Question</a>
+                        <button
+                            class="btn btn-primary"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#expertOffcanvas"
+                            aria-controls="expertSOffcanvas">
+                            Ask question
+                        </button>
                     </div>
-                    
+
                 </section>
+
+
+                <!-- Mandi Offcanvas -->
+                <%- include('offcanvas/mandiprice') %>
+                <%- include('offcanvas/expertChat') %>
  
             </div>
         </main>

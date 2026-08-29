@@ -16,6 +16,12 @@
 
     box-sizing: border-box;
     
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+.sidebar::-webkit-scrollbar{
+    width: 1px;
 }
 
 

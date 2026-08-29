@@ -77,7 +77,24 @@ body {
 
 .tool-container {
     width: 100%;
-    height: 400px;
-    background-color: #183a2a;
+
+    display: flex;
+    flex-wrap: nowrap;
+    /* flex-wrap: wrap; */
+    margin: 0 auto;
+    gap: 10px;
 }
 
+#scan-card {
+    flex: 2;
+    height: 400px;
+    border-radius: 0.75rem;
+    border-top-right-radius: 2.5rem;
+}
+
+.tool-container .same-size {
+    flex: 1;
+    height: 400px;
+    border-radius: 0.75rem;
+    border-top-right-radius: 2.5rem;
+}

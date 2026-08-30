@@ -17,13 +17,22 @@ body {
 }
 
 
-/* =========================
-   SIDEBAR SPACE
-========================= */
+/*   SIDEBAR SPACE */
 
 .app-content {
     margin-left: 260px;
     min-height: 100vh;
+}
+
+.form-select select:focus {
+    outline: none;
+    border-color: #5f954e;
+    box-shadow: none;
+}
+
+.form-select select option:hover {
+    background-color:  #183a2a;
+    color: #fff;
 }
 
 

@@ -1,0 +1,37 @@
+.price-result {
+    margin-top: 25px;
+    padding: 18px;
+    border-radius: 12px;
+    background: #f5f8f5;
+}
+
+.price-result h5 {
+    margin-bottom: 15px;
+}
+
+.price-result p {
+    margin: 6px 0;
+}
+
+.price-box {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.price-box div {
+    flex: 1;
+    padding: 12px;
+    background: white;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.price-box small {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.price-box strong {
+    font-size: 18px;
+}

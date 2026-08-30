@@ -25,32 +25,77 @@
 
     <div class="offcanvas-body">
 
-        <h4>Check Mandi Price</h4>
+        <h3><span>Check Mandi Price</span></h3>
+        <p>अपनी फसल और लोकेशन (क्षेत्र) Select करें।</p>
 
-        <label>State</label>
-        <select class="form-select mb-3">
-            <option>Select State</option>
-            <option>Uttar Pradesh</option>
-            <option>Punjab</option>
-            <option>Haryana</option>
-        </select>
+        <!-- --------STATE------------ -->
+        <div class="mb-3">
+            <label for="state" class="form-lable">State</label>
 
-        <label>District</label>
-        <select class="form-select mb-3">
-            <option>Select District</option>
-        </select>
+            <select id="state" class="form-select" aria-label="Default select example">
+                <option selected>Select State</option>
+                <option value="up">Uttar Pradesh</option>
+                <option value="punjab">Punjab</option>
+                <option value="haryana">Haryana</option>
+                <option value="maharashtra">Maharashtra</option>
+            </select>
+        </div>
 
-        <label>Crop</label>
-        <select class="form-select mb-3">
-            <option>Select Crop</option>
-            <option>Wheat</option>
-            <option>Rice</option>
-            <option>Sugarcane</option>
-        </select>
 
-        <button class="btn btn-success w-100">
-            Get Mandi Price
+        <!-- ----------DISTRICT--------------- -->
+        <div class="mb-3">
+            <label for="district" class="form-lable">District</label>
+
+            <select id="district" class="form-select" disabled>
+                <option selected>Select District</option>
+            </select>
+        </div>
+
+
+        <!-- -----------CROP------------------- -->
+        <div class="mb-3">
+            <label for="crop" class="form-lable">Crop</label>
+
+            <select id="crop" class="form-select" disabled>
+                <option selected>Select crop</option>
+                <option value="wheat">गेहूँ</option>
+                <option value="rice">चावल</option>
+                <option value="potato">आलू</option>
+                <option value="tomato">टमाटर</option>
+                <option value="onion">प्याज़</option>
+            </select>
+        </div>
+
+
+        <!-- ----------------BUTTON-------------- -->
+        <button id="mandi-price" class="btn btn-success w-100" disabled>
+            भाव देखें 
         </button>
+
+
+        <div id="priceResult" class="price-result">
+            <h5>Mandi Price</h5>
+
+            <p>Market: <span id="marketName">-</span></p>
+            <p>Crop: <span id="cropName">-</span></p>
+
+            <div class="price-box">
+                <div>
+                    <small>Min Price</small>
+                    <strong id="minPrice">₹ -</strong>
+                </div>
+
+                <div>
+                    <small>Max Price</small>
+                    <strong id="maxPrice">₹ -</strong>
+                </div>
+
+                <div>
+                    <small>Modal Price</small>
+                    <strong id="modalPrice">₹ -</strong>
+                </div>
+            </div>
+        </div>
 
     </div>
 </div>

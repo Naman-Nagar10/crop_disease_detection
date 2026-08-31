@@ -1,0 +1,66 @@
+<div
+    class="offcanvas offcanvas-end"
+    tabindex="-1"
+    id="chatOffcanvas"
+    aria-labelledby="chatOffcanvasLabel"
+    style="width: 500px;">
+
+    <div class="offcanvas-header">
+        <!-- <div>
+            <h2 class="offcanvas-title" id="chatOffcanvasLabel">
+                AI Krishi helper
+            </h2>
+
+            <p></p>
+        </div> -->
+
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close">
+        </button>
+    </div>
+    <!-- <hr> -->
+
+
+    <div class="offcanvas-body chat-body" >
+
+        <div class="title-container">
+            <div class="title">
+                <i class="fa-solid fa-robot"></i>
+                <h3>सटीक सवाल, <span>सटीक समाधान</span></h3>
+            </div>
+            <p>कृपया अपनी फसल से जुड़ी समस्या स्पष्ट रूप से बताएं।</p>
+        </div>
+        <hr>
+
+        <div class="messages" id="chat-box">
+
+            <div class="ai-msg msg-content">
+                <p>Welcome to AI साथी <br>
+                यह एक AI-संचालित कृषि सहायता प्रणाली है, जो आपकी फसल, मौसम पूर्वानुमान एवं मंडी भावों पर वैज्ञानिक मार्गदर्शन प्रदान करती है।
+                कृपया अपनी समस्या स्पष्ट रूप से बताएं ।</p>
+            </div>
+
+            <!-- -----------QESTION----- -->
+            <div class="user-msg msg-content">
+                <p>bhai mujhe meri fasal ke liye guide karo.</p>
+            </div>
+
+            <!-- ---------ANSWER ------------->
+            <div class="ai-msg msg-content">
+                <p>this is a demo massege.</p>
+            </div>
+
+            
+        </div>
+
+        <div class="chat-input-area">
+            <textarea id="question" class="form-control" rows="2" placeholder="Apna question likhe"></textarea>
+
+            <button id="sendQuestion" class="btn btn-success" type="button"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+
+    </div>
+</div>

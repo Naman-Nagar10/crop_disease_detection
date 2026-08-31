@@ -12,7 +12,8 @@
     <!-- ----LAYOUT---- -->
 
     <div class="layout">
-        <%- include('partials/sidebar') %>       <!-- this is SIDEBAR -->
+         <!-- this is SIDEBAR -->
+        <%- include('partials/sidebar') %>      
 
         <!-- MAIN CONTENT -->
         <!--ye main content ka page hai  -->
@@ -62,7 +63,15 @@
                     <div class="card same-size" id="chat-card">
                         <h3>Chat with AI</h3>
                         <p>आप फसलों, कीटों (pests) या मौसम से जुड़ा कोई भी सवाल पूछ सकते हैं!</p>
-                        <a href="/chat" class="btn">Upload photo</a>
+                        
+                        <button
+                            class="btn btn-success"
+                            type="button"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#chatOffcanvas"
+                            aria-controls="chatOffcanvas">
+                            Chat करें  <i class="fa-solid fa-paper-plane"></i>
+                        </button>
                     </div>
 
                     <div class="card same-size" id="scheme-card">
@@ -75,6 +84,7 @@
 
                 <!-- Scan Offcanvas -->
                 <%- include('offcanvas/scan') %>
+                <%- include('offcanvas/aiChat') %>
                 <hr>
 
 

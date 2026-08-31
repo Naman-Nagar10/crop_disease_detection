@@ -5,10 +5,11 @@
 .dashboard h1, h2, h3 {
     font-weight: 600;
     color:  #183a2a;
+    margin: 0;
 }
 
 .dashboard span{
-    color: #5f954e;;
+    color: #5f954e;
 }
 
 .dashboard p {

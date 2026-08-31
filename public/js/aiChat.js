@@ -3,48 +3,73 @@ let sendBtn = document.querySelector("#sendQuestion");
 let chatBox = document.querySelector("#chat-box");
 
 
-sendBtn.addEventListener("click", () => {
+sendBtn.addEventListener("click", async () => {
+
     let userQuestion = question.value;
-    
-    if(userQuestion === "") {
+
+    if (userQuestion === "") {
         return;
     }
 
 
-    chatBox.innerHTML += 
+    chatBox.innerHTML +=
         `<div class="user-msg msg-content">
             <p>${userQuestion}</p>
         </div>`;
 
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-    let aiMessege = ` hello i am an Ai Chatbot. 
-        I am developed by NAMAN NAGAR for his SIH (Smart India Hackathon. Thonkyou!)`;
+    question.value = "";
+
+
+    let response = await fetch("/api/chat", {
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            question: userQuestion
+        })
+    });
+
+
+    let data = await response.json();
+
+    console.log(data);
+
+
+    // question.value = "";
+
 
     let aiBox = document.createElement("div");
+
     aiBox.className = "ai-msg msg-content";
 
     chatBox.appendChild(aiBox);
 
+
+    let aiMessage = data.answer;
+
     let i = 0;
 
-    function typeMsg() {
-        if (i < aiMessege.length) {
 
-            aiBox.innerHTML += aiMessege[i];
+    function typeMsg() {
+
+        if (i < aiMessage.length) {
+
+            aiBox.innerHTML += aiMessage[i];
+
             i++;
 
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            setTimeout(typeMsg, 30);
+            setTimeout(typeMsg, 10);
         }
     }
 
+
     typeMsg();
 
-
-
-        question.value = "";
-
 });
-
-

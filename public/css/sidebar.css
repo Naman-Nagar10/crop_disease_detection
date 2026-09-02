@@ -97,7 +97,7 @@
 
 /* sidebar item */
 
-.sidebar-item {
+.sidebar-btn {
     display: flex;
 
     align-items: center;
@@ -117,17 +117,7 @@
     transition: all 0.2s ease;
 }
 
-/* .sidebar-item svg {
-    width: 21px;
-    height: 21px;
-
-    flex-shrink: 0;
-
-    stroke-width: 1.7;
-} */
-
-
-.sidebar-item div {
+.sidebar-btn div {
     display: flex;
 
     flex-direction: column;
@@ -136,12 +126,12 @@
 }
 
 
-.sidebar-item span {
+.sidebar-btn span {
     font-size: 14px;
 }
 
 
-.sidebar-item small {
+.sidebar-btn small {
     font-size: 10px;
 
     color: rgba(255, 255, 255, 0.35);
@@ -150,7 +140,7 @@
 
 /* Hover */
 
-.sidebar-item:hover {
+.sidebar-btn:hover {
     background: rgba(255, 255, 255, 0.06);
 
     color: #ffffff;
@@ -159,13 +149,13 @@
 
 /* Active */
 
-.sidebar-item.active {
+.sidebar-btn.active {
     background: rgba(255, 255, 255, 0.09);
 
     color: #ffffff;
 }
 
-.sidebar-item.active::before {
+.sidebar-btn.active::before {
     content: "";
 
     width: 3px;

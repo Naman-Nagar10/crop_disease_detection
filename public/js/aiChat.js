@@ -3,6 +3,17 @@ let sendBtn = document.querySelector("#sendQuestion");
 let chatBox = document.querySelector("#chat-box");
 
 
+question.addEventListener("keypress", (e) => {
+
+    if (e.key === "Enter") {
+
+        sendBtn.click();
+    };
+});
+
+
+
+
 sendBtn.addEventListener("click", async () => {
 
     let userQuestion = question.value;

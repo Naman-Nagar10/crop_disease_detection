@@ -147,25 +147,9 @@
 }
 
 
-/* Active */
-
 .sidebar-btn.active {
-    background: rgba(255, 255, 255, 0.09);
-
+    background: rgba(255, 255, 255, 0.06);
     color: #ffffff;
-}
-
-.sidebar-btn.active::before {
-    content: "";
-
-    width: 3px;
-    height: 24px;
-
-    background: #a8c98b;
-
-    border-radius: 10px;
-
-    margin-left: -12px;
 }
 
 

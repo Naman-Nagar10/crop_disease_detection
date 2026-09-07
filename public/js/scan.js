@@ -7,6 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let capturedImage = document.querySelector("#captured-image");
 
     let stream;
+    let capturedFile = null;
+
+    let scanResult = document.querySelector("#scan-result");
+    let diseaseName = document.querySelector("#disease-name");
+    let confidence = document.querySelector("#confidence");
 
 
     // Start Camera
@@ -64,6 +69,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         capturedImage.src = canvas.toDataURL("image/png");
 
+        canvas.toBlob((blob) => {
+            capturedFile = new File([blob], "captured-image.png", {
+                type: "image/png"
+            });
+        }, "image/png");
+
         stream.getTracks().forEach(track => track.stop());
         video.srcObject = null;
         stream = null;
@@ -81,5 +92,69 @@ document.addEventListener("DOMContentLoaded", () => {
     secondLink.addEventListener("click", () => {
         fileInput.click();
     });
+
+
+
+    fileInput.addEventListener("change", () => {
+
+    let file = fileInput.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    let imageURL = URL.createObjectURL(file);
+
+    capturedImage.src = imageURL;
+
+    capturedImage.style.display = "block";
+
+    video.style.display = "none";
+
+    });
+
+
+    let uploadBtn = document.querySelector("#upload-btn");
+
+    uploadBtn.addEventListener("click", async () => {
+
+        let file = capturedFile || fileInput.files[0];
+
+        if (!file) {
+            alert("पहले image select करें।");
+            return;
+        }
+
+        let formData = new FormData();
+
+        formData.append("image", file);
+
+        try {
+
+            let response = await fetch("/api/scan", {
+                method: "POST",
+                body: formData
+            });
+
+            let data = await response.json();
+
+            console.log(data);
+
+            diseaseName.textContent = data.disease;
+            confidence.textContent = data.confidence;
+
+            scanResult.classList.remove("d-none");
+            
+        } catch (error) {
+
+            console.log(error);
+
+            alert("Image upload नहीं हो पाई।");
+
+        }
+
+    });
+
+    console.log(req.file);
 
 });

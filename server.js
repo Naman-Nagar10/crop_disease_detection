@@ -3,6 +3,9 @@ require("dotenv").config();
 
 const express = require("express");
 const app = express();
+const multer = require("multer");
+
+
 const { GoogleGenAI } = require("@google/genai");
 
 const ai = new GoogleGenAI({
@@ -12,6 +15,10 @@ const ai = new GoogleGenAI({
 
 
 const path = require("path");
+
+const upload = multer({
+    dest: "uploads/"
+});
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -43,6 +50,18 @@ app.post("/api/chat", async (req, res) => {
         answer: answer
     });
 
+});
+
+
+
+app.post("/api/scan", upload.single("image"), (req, res) => {
+    console.log(req.file);
+
+    res.json({
+        success: true,
+        disease: "Leaf Spot",
+        confidence: 92
+    });
 });
 
 const port = 8080;

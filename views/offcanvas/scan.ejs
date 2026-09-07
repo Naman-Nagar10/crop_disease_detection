@@ -6,13 +6,13 @@
     style="width: 500px;">
 
     <div class="offcanvas-header">
-        <div>
+        <!-- <div>
             <h2 class="offcanvas-title" id="scanOffcanvasLabel">
                 फसल की फोटो से जाँच करें
             </h2>
 
             <p>अच्छी रोशनी में पत्ते साफ़ फोटो लें।।</p>
-        </div>
+        </div> -->
 
         <button
             type="button"
@@ -26,12 +26,43 @@
 
     <div class="offcanvas-body">
 
-        <h1></h1>
+        <div class="title-container">
+            <div class="title">
+                <i class="fa-solid fa-upload"></i>
+                <h3>फसल की<span> PHOTO भेजें</span></h3>
+            </div>
+            <p>अच्छी रोशनी में पत्ते की साफ़ फोटो लें।</p>
+        </div>
+
+        <hr>
+
+       
+
+        <div class="scn-body">
+
+            <div class="camera-box" id="camera-box">
+                <video id="video" autoplay playsinline></video>
+                <img id="captured-image" class="captured-image" alt="Captured"/>
+                <div class="camera-placeholder" id="camera-placeholder">
+                    <i class="fa-solid fa-camera"></i>
+                    Open Camera
+                </div>
+            </div>
 
 
-        <button class="btn btn-success mt-3">
-            scan
-        </button>
+            <div class="action-row">
+                
+                <button id="start-camera-btn" class="btn btn-primary">Start Camera</button>
+                <button id="click-btn" class="btn btn-secondary">Click</button>
+                <button id="upload-btn" class="btn btn-success">Upload</button>
+            </div>
 
+            <input type="file" class="file-input" id="file-input" accept="image/*"/>
+
+            <div class="second-link" id="second-link">Select another image</div>
+
+
+        </div>
+        
     </div>
 </div>

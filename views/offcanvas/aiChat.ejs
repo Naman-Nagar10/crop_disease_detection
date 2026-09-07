@@ -55,9 +55,30 @@
         </div>
 
         <div class="chat-input-area">
-            <textarea id="question" class="form-control" rows="2" placeholder="Apna question likhe"></textarea>
 
-            <button id="sendQuestion" class="btn btn-success" type="button"><i class="fa-solid fa-paper-plane"></i></button>
+            <textarea
+                id="question"
+                class="form-control"
+                rows="2"
+                placeholder="Apna question likhe">
+            </textarea>
+
+            <button
+                id="sendQuestion"
+                class="btn btn-success"
+                type="button">
+
+                <div
+                    id="send-spinner"
+                    class="spinner-border spinner-border-sm d-none"
+                    role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+
+                <i id="send-icon" class="fa-solid fa-paper-plane"></i>
+
+            </button>
+
         </div>
 
     </div>

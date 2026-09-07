@@ -1,124 +1,213 @@
-let question = document.querySelector("#question");
-let sendBtn = document.querySelector("#sendQuestion");
-let chatBox = document.querySelector("#chat-box");
+document.addEventListener("DOMContentLoaded", () => {
 
 
-let chatOffcanvas = document.querySelector("#chatOffcanvas");
+    let question = document.querySelector("#question");
+    let sendBtn = document.querySelector("#sendQuestion");
+    let chatBox = document.querySelector("#chat-box");
 
-let welcomeMsg = document.querySelector("#welcome-message");
+    let chatOffcanvas = document.querySelector("#chatOffcanvas");
 
-let welcomeText =
-    "Welcome to AI साथी! यह एक AI-संचालित कृषि सहायता प्रणाली है, जो आपकी फसल, मौसम पूर्वानुमान एवं मंडी भावों पर वैज्ञानिक मार्गदर्शन प्रदान करती है। कृपया अपनी समस्या स्पष्ट रूप से बताएं।";
+    let welcomeMsg = document.querySelector("#welcome-message");
 
-let welcomeIndex = 0;
-let welcomeStarted = false;
+    let spinner = document.querySelector("#send-spinner");
+    let sendIcon = document.querySelector("#send-icon");
 
-chatOffcanvas.addEventListener("shown.bs.offcanvas", () => {
 
-    if (welcomeStarted) {
-        return;
-    }
+    // Welcome Message
+    let welcomeText =
+        "Welcome to AI साथी! यह एक AI-संचालित कृषि सहायता प्रणाली है, जो आपकी फसल, मौसम पूर्वानुमान एवं मंडी भावों पर वैज्ञानिक मार्गदर्शन प्रदान करती है। कृपया अपनी समस्या स्पष्ट रूप से बताएं।";
 
-    welcomeStarted = true;
+    let welcomeIndex = 0;
+    let welcomeStarted = false;
+
 
     function typeWelcome() {
 
         if (welcomeIndex < welcomeText.length) {
 
-            welcomeMsg.innerHTML += welcomeText[welcomeIndex];
+            welcomeMsg.textContent += welcomeText[welcomeIndex];
 
             welcomeIndex++;
+
+            chatBox.scrollTop = chatBox.scrollHeight;
 
             setTimeout(typeWelcome, 30);
         }
     }
 
-    typeWelcome();
-});
 
+    // Welcome typing
+    chatOffcanvas.addEventListener("shown.bs.offcanvas", () => {
 
-// -----------enter key press------
+        if (welcomeStarted) {
+            return;
+        }
 
-question.addEventListener("keypress", (e) => {
+        welcomeStarted = true;
 
-    if (e.key === "Enter") {
+        typeWelcome();
 
-        sendBtn.click();
-    };
-});
-
-
-
-
-sendBtn.addEventListener("click", async () => {
-
-    let userQuestion = question.value;
-
-    if (userQuestion === "") {
-        return;
-    }
-
-
-    chatBox.innerHTML +=
-        `<div class="user-msg msg-content">
-            <p>${userQuestion}</p>
-        </div>`;
-
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    question.value = "";
-
-
-    let response = await fetch("/api/chat", {
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            question: userQuestion
-        })
     });
 
 
-   
-    let data = await response.json();
+         // Send Question
 
-    console.log(data);
+    sendBtn.addEventListener("click", async () => {
 
+        let userQuestion = question.value.trim();
 
-
-    let aiBox = document.createElement("div");
-
-    aiBox.className = "ai-msg msg-content";
-
-    chatBox.appendChild(aiBox);
+        // Empty question
+        if (userQuestion === "") {
+            return;
+        }
 
 
+        // User message
+        let userMsg = document.createElement("div");
 
-    // typing effect for AI message
+        userMsg.className = "user-msg msg-content";
 
-    let aiMessage = data.answer;
+        let userPara = document.createElement("p");
 
-    let i = 0;
+        userPara.textContent = userQuestion;
+
+        userMsg.appendChild(userPara);
+
+        chatBox.appendChild(userMsg);
 
 
-    function typeMsg() {
+        chatBox.scrollTop = chatBox.scrollHeight;
 
-        if (i < aiMessage.length) {
 
-            aiBox.innerHTML += aiMessage[i];
+        question.value = "";
 
-            i++;
+
+        sendBtn.disabled = true;
+
+
+        // Spinner ON
+        spinner.classList.remove("d-none");
+
+        sendIcon.classList.add("d-none");
+
+
+        try {
+
+            // Gemini API Request
+           
+
+            let response = await fetch("/api/chat", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    question: userQuestion
+                })
+
+            });
+
+
+            let data = await response.json();
+
+
+            // Spinner OFF
+
+            spinner.classList.add("d-none");
+
+            sendIcon.classList.remove("d-none");
+
+            sendBtn.disabled = false;
+
+
+            // AI Message Box
+
+            let aiBox = document.createElement("div");
+
+            aiBox.className = "ai-msg msg-content";
+
+
+            let aiPara = document.createElement("p");
+
+            aiBox.appendChild(aiPara);
+
+            chatBox.appendChild(aiBox);
+
+
+            // Gemini answer
+            let aiMessage = data.answer;
+
+
+            // AI Typing Effect
+            let i = 0;
+
+
+            function typeMsg() {
+
+                if (i < aiMessage.length) {
+
+                    aiPara.textContent += aiMessage[i];
+
+                    i++;
+
+                    chatBox.scrollTop = chatBox.scrollHeight;
+
+                    setTimeout(typeMsg, 30);
+
+                }
+
+            }
+
+
+            typeMsg();
+
+
+        } catch (error) {
+
+            console.log(error);
+
+
+            // Spinner OFF
+            spinner.classList.add("d-none");
+
+            sendIcon.classList.remove("d-none");
+
+            sendBtn.disabled = false;
+
+
+            // Error message
+            let errorBox = document.createElement("div");
+
+            errorBox.className = "ai-msg msg-content";
+
+            errorBox.innerHTML =
+                "<p>माफ कीजिए, अभी AI से response नहीं मिल पाया। कृपया थोड़ी देर बाद फिर कोशिश करें।</p>";
+
+
+            chatBox.appendChild(errorBox);
 
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            setTimeout(typeMsg, 10);
         }
-    }
+
+    });
 
 
-    typeMsg();
+    // Enter Key
+
+    question.addEventListener("keypress", (e) => {
+
+        if (e.key === "Enter") {
+
+            e.preventDefault();
+
+            sendBtn.click();
+
+        }
+
+    });
 
 });

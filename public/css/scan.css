@@ -1,24 +1,17 @@
-/* =========================
-   Scan Offcanvas
-========================= */
-
+  /* Scan Offcanvas */
 #scanOffcanvas {
     background: #f8fff9;
 }
 
+/* Scan Body */
 
-/* =========================
-   Scan Body
-========================= */
 
 #scanOffcanvas .offcanvas-body {
     padding: 1.2rem;
 }
 
-
-/* =========================
-   Camera Box
-========================= */
+ 
+/*   Camera Box */
 
 .camera-box {
     width: 100%;
@@ -81,9 +74,7 @@
 }
 
 
-/* =========================
-   Buttons
-========================= */
+   /* Buttons */
 
 .action-row {
     display: flex;
@@ -92,19 +83,8 @@
     margin-top: 1rem;
 }
 
-.action-row button {
-    flex: 1;
+/* Select Another Image */
 
-    border-radius: 10px;
-    padding: 10px;
-
-    font-size: 0.9rem;
-}
-
-
-/* =========================
-   Select Another Image
-========================= */
 
 .second-link {
     text-align: center;
@@ -129,9 +109,8 @@
 }
 
 
-/* =========================
-   Disease Result
-========================= */
+   /* Disease Result */
+
 
 .scan-result {
     margin-top: 1.5rem;
@@ -187,10 +166,8 @@
     font-weight: 500;
 }
 
+   /* Mobile */
 
-/* =========================
-   Mobile
-========================= */
 
 @media (max-width: 576px) {
 

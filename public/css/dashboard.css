@@ -133,3 +133,18 @@
     background-position: right;
     
 }
+
+#chat-card {
+    background-image: url(/images/ai_back.jpeg);
+    background-size: 100% 400px;
+    background-repeat: no-repeat;
+
+}
+
+#chat-card h3{
+    color: #fff;
+}
+    
+#chat-card span{
+    color:  #183a2a;
+}

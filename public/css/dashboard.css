@@ -146,5 +146,19 @@
 }
     
 #chat-card span{
-    color:  #183a2a;
+    color: #b3eba2;
+}
+
+#chat-card p{
+    color: #f8fff5;
+}
+
+#chat-card .btn{
+    color: #b3eba2;
+}
+
+#chat-card .btn:hover {
+    background-color: #f4f7f6;
+    color: #183a2a;
+    transform: translateY(-1px)
 }

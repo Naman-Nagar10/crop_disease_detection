@@ -65,6 +65,8 @@
     margin: 0 0 0.5rem;
     color: #fff;
     font-size: 0.85rem;
+    white-space: pre-wrap;
+    line-height: 1.6;
 }
 
 .msg-content p:last-child {

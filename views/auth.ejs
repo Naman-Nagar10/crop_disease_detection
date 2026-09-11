@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head><%- include('partials/head') %><title><%= mode === 'login' ? 'Login' : 'Create account' %> · Krishi Rakshak</title></head>
+<body class="auth-page">
+  <main class="auth-card">
+    <a class="brand" href="/"><i class="fa-solid fa-seedling"></i> Krishi Rakshak</a>
+    <p class="eyebrow">किसानों के लिए स्मार्ट खेती साथी</p>
+    <h1><%= mode === 'login' ? 'वापस स्वागत है' : 'अपना किसान खाता बनाएं' %></h1>
+    <p class="muted"><%= mode === 'login' ? 'अपनी खेती की जानकारी और tools तक पहुँचें।' : 'Email से सुरक्षित account बनाकर सभी सुविधाएँ पाएं।' %></p>
+    <% if (error) { %><div class="alert alert-danger"><%= error %></div><% } %>
+    <form method="post" action="/<%= mode %>" class="auth-form">
+      <% if (mode === 'signup') { %><label>पूरा नाम<input name="name" required autocomplete="name" placeholder="आपका नाम"></label><% } %>
+      <label>Email address<input name="email" type="email" required autocomplete="email" placeholder="name@email.com"></label>
+      <label>Password<input name="password" type="password" required minlength="6" autocomplete="<%= mode === 'login' ? 'current-password' : 'new-password' %>" placeholder="कम-से-कम 6 अक्षर"></label>
+      <button class="btn btn-success w-100" type="submit"><%= mode === 'login' ? 'Login करें' : 'Account बनाएं' %></button>
+    </form>
+    <p class="switch"><%= mode === 'login' ? 'नया account चाहिए?' : 'पहले से account है?' %> <a href="/<%= mode === 'login' ? 'signup' : 'login' %>"><%= mode === 'login' ? 'Signup करें' : 'Login करें' %></a></p>
+  </main>
+</body></html>

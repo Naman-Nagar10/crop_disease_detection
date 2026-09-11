@@ -1,0 +1,228 @@
+/*
+  RESPONSIVE RULES
+  Desktop: 1200px and above
+  Netbook: 901px to 1199px
+  Tablet: 601px to 900px
+  Mobile: 600px and below
+*/
+
+/* ---------- Netbook / small laptop ---------- */
+@media (max-width: 1199px) {
+    .sidebar {
+        width: 210px;
+        padding: 24px 16px;
+    }
+
+    .navbar {
+        width: calc(100vw - 210px);
+        margin-left: 210px;
+    }
+
+    .main-content {
+        width: calc(100% - 210px);
+        margin-left: 210px;
+        padding: 88px 28px 32px;
+    }
+
+    .tool-container {
+        flex-wrap: wrap;
+    }
+
+    #scan-card,
+    #mandi,
+    .tool-container .same-size {
+        flex: 1 1 calc(50% - 10px);
+    }
+}
+
+/* ---------- Tablet ---------- */
+@media (max-width: 900px) {
+    /* The large desktop sidebar is hidden so the page gets full width. */
+    .sidebar {
+        display: none;
+    }
+
+    .navbar {
+        width: 100%;
+        margin-left: 0;
+        padding: 0 20px;
+    }
+
+.mobile-brand {
+        display: block;
+    }
+
+    .main-content {
+        width: 100%;
+        margin-left: 0;
+        padding: 88px 24px 32px;
+    }
+
+    #hero-poster {
+        height: 300px;
+        padding: 32px 24px;
+        background-position: center;
+    }
+
+    .tool-container {
+        gap: 16px;
+    }
+
+    .offcanvas {
+        width: min(500px, 100vw) !important;
+    }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 600px) {
+    .navbar {
+        height: 60px;
+        padding: 0 14px;
+    }
+
+    .navbar-right {
+        gap: 6px;
+    }
+
+    /* Hide the long brand name; show a simple three-line menu icon instead. */
+    .mobile-brand {
+        display: none;
+    }
+
+    .mobile-menu-btn {
+        display: inline-grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border: 0;
+        border-radius: 9px;
+        background: #e8f3e4;
+        color: #245934;
+        font-size: 1.1rem;
+    }
+
+    .nav-login,
+    .nav-signup {
+        font-size: 0.72rem;
+    }
+
+    .nav-signup {
+        width: auto;
+        margin-top: 0;
+        padding: 6px 9px !important;
+    }
+
+    .main-content {
+        padding: 80px 16px 24px;
+    }
+
+    .dashboard > h1 {
+        font-size: 1.55rem;
+    }
+
+    .dashboard > p {
+        font-size: 0.88rem;
+    }
+
+    #hero-poster {
+        height: auto;
+        min-height: 290px;
+        padding: 28px 18px;
+        background-position: center;
+    }
+
+    #hero-poster h1 {
+        font-size: 1.5rem;
+    }
+
+    #hero-poster p {
+        font-size: 0.82rem;
+    }
+
+    .tool-container {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    #scan-card,
+    #mandi,
+    .tool-container .same-size {
+        flex: none;
+        width: 100%;
+        height: 270px;
+    }
+
+    #scan-card,
+    #chat-card {
+        background-size: cover;
+        background-position: center;
+    }
+
+    #mandi {
+        background-size: cover;
+        background-position: center;
+    }
+
+    .card {
+        padding: 22px 18px;
+    }
+
+    .card h3 {
+        font-size: 1.3rem;
+    }
+
+    .card p {
+        font-size: 0.82rem;
+    }
+
+    .btn,
+    .btn-success {
+        width: auto;
+        min-width: 130px;
+    }
+
+    .page-content {
+        padding: 78px 16px 24px;
+    }
+
+    .scheme-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-hero,
+    .auth-card {
+        border-radius: 16px;
+    }
+
+    .admin-stats {
+        gap: 10px;
+    }
+
+    .offcanvas {
+        width: 100vw !important;
+    }
+
+    .mobile-menu {
+        width: min(280px, 82vw) !important;
+    }
+
+    .mobile-menu .offcanvas-body {
+        display: grid;
+        align-content: start;
+        gap: 10px;
+    }
+
+    .mobile-menu a {
+        padding: 12px;
+        border-radius: 10px;
+        color: #234a30;
+        background: #f1f7ef;
+        text-decoration: none;
+        font-weight: 600;
+    }
+}
+
+/* Menu button is not needed on tablet, netbook, or desktop. */
+.mobile-menu-btn {
+    display: none;
+}

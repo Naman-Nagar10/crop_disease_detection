@@ -1,17 +1,44 @@
 <nav class="navbar">
+    <button
+        class="mobile-menu-btn"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#mobileMenu"
+        aria-controls="mobileMenu"
+        aria-label="Open menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
 
+    <a class="mobile-brand" href="/"><i class="fa-solid fa-seedling"></i> Krishi Rakshak</a>
     <div class="navbar-right">
+        <% if (user) { %>
+            <span class="user-chip"><i class="fa-solid fa-circle-user"></i> <%= user.name %></span>
+            <% if (user.role === 'admin') { %><a class="nav-admin" href="/admin">Admin panel</a><% } %>
+            <form method="post" action="/logout"><button class="nav-icon" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+        <% } else { %>
+            <a class="nav-login" href="/login">Login करें</a>
+            <a class="btn btn-success nav-signup" href="/signup">Signup</a>
+        <% } %>
+    </div>
+</nav>
 
-        <!-- Notification -->
-        <button class="nav-icon" title="Notifications">
-            <i class="fa-solid fa-bell"></i>
-        </button>
-
-        <!-- Help -->
-        <button class="nav-icon" title="Help">
-            <i class="fa-solid fa-circle-question"></i>
-        </button>
-
+<!-- This compact menu is shown only on mobile screens. -->
+<div class="offcanvas offcanvas-start mobile-menu" tabindex="-1" id="mobileMenu">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title"><i class="fa-solid fa-seedling"></i> Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
 
-</nav>
+    <div class="offcanvas-body">
+        <a href="/"><i class="fa-solid fa-house"></i> Home</a>
+        <% if (user) { %>
+            <a href="/schemes"><i class="fa-solid fa-landmark"></i> Government Schemes</a>
+        <% } %>
+        <% if (user && user.role === 'admin') { %>
+            <a href="/admin"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
+        <% } %>
+        <% if (!user) { %>
+            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+        <% } %>
+    </div>
+</div>

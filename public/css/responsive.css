@@ -48,7 +48,11 @@
         padding: 0 20px;
     }
 
-.mobile-brand {
+    .mobile-menu-btn {
+        display: inline-grid;
+    }
+
+    .mobile-brand {
         display: block;
     }
 
@@ -206,13 +210,13 @@
         width: min(280px, 82vw) !important;
     }
 
-    .mobile-menu .offcanvas-body {
+    .mobile-navigation {
         display: grid;
         align-content: start;
         gap: 10px;
     }
 
-    .mobile-menu a {
+    .mobile-navigation .sidebar-btn {
         padding: 12px;
         border-radius: 10px;
         color: #234a30;
@@ -220,10 +224,27 @@
         text-decoration: none;
         font-weight: 600;
     }
+
+    .mobile-navigation .sidebar-btn:hover,
+    .mobile-navigation .sidebar-btn.active {
+        color: #183a2a;
+        background: #dcefd7;
+    }
+
+    .mobile-navigation .sidebar-btn small {
+        color: #66806b;
+        font-weight: 400;
+    }
+
+    .mobile-navigation .section-title {
+        margin: 12px 0 0;
+        padding-left: 4px;
+        color: #78917b;
+    }
 }
 
 /* Menu button is not needed on tablet, netbook, or desktop. */
-@media (min-width: 601px) {
+@media (min-width: 901px) {
     .mobile-menu-btn {
         display: none;
     }

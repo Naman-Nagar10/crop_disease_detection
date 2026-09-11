@@ -29,16 +29,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
 
-    <div class="offcanvas-body">
-        <a href="/"><i class="fa-solid fa-house"></i> Home</a>
-        <% if (user) { %>
-            <a href="/schemes"><i class="fa-solid fa-landmark"></i> Government Schemes</a>
-        <% } %>
-        <% if (user && user.role === 'admin') { %>
-            <a href="/admin"><i class="fa-solid fa-shield-halved"></i> Admin Panel</a>
-        <% } %>
-        <% if (!user) { %>
-            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
-        <% } %>
+    <div class="offcanvas-body mobile-navigation">
+        <%- include('navigation-links') %>
     </div>
 </div>

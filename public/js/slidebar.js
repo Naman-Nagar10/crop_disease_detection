@@ -1,4 +1,4 @@
-let buttons = document.querySelectorAll(".sidebar-btn");
+const buttons = document.querySelectorAll(".navigation-link");
 
 buttons.forEach((btn) => {
 
@@ -23,8 +23,8 @@ buttons.forEach((btn) => {
 //     html: true,
 // });
 
-let helpBtn = document.querySelector("#help-btn");
-
-let helpPopover = new bootstrap.Popover(helpBtn, {
-    html: true,
+document.querySelectorAll("[data-help-trigger]").forEach((helpButton) => {
+    new bootstrap.Popover(helpButton, {
+        html: true,
+    });
 });

@@ -1,70 +1,44 @@
-  /* Scan Offcanvas */
 #scanOffcanvas {
     background: #f8fff9;
 }
-
-/* Scan Body */
-
 
 #scanOffcanvas .offcanvas-body {
     padding: 1.2rem;
 }
 
- 
-/*   Camera Box */
-
 .camera-box {
     width: 100%;
     height: 280px;
-
     background: #eaf7ee;
     border: 2px dashed #198754;
     border-radius: 16px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     overflow: hidden;
     position: relative;
 }
 
-
-/* Camera video */
-
 #video {
     width: 100%;
     height: 100%;
-
     object-fit: cover;
-
     display: none;
 }
-
-
-/* Captured image */
 
 .captured-image {
     width: 100%;
     height: 100%;
-
     object-fit: cover;
-
     display: none;
 }
-
-
-/* Camera placeholder */
 
 .camera-placeholder {
     display: flex;
     flex-direction: column;
-
     align-items: center;
     justify-content: center;
-
     gap: 10px;
-
     color: #198754;
     font-size: 1rem;
 }
@@ -73,27 +47,17 @@
     font-size: 2.5rem;
 }
 
-
-   /* Buttons */
-
 .action-row {
     display: flex;
     gap: 10px;
-
     margin-top: 1rem;
 }
 
-/* Select Another Image */
-
-
 .second-link {
     text-align: center;
-
     margin-top: 15px;
-
     color: #198754;
     font-size: 0.9rem;
-
     cursor: pointer;
 }
 
@@ -101,49 +65,28 @@
     text-decoration: underline;
 }
 
-
-/* Hide file input */
-
 .file-input {
     display: none;
 }
 
-
-   /* Disease Result */
-
-
 .scan-result {
     margin-top: 1.5rem;
-
     padding: 1.2rem;
-
     background: #ffffff;
-
     border: 1px solid #d7eadc;
     border-left: 5px solid #198754;
-
     border-radius: 14px;
-
     box-shadow: 0 5px 15px rgba(25, 135, 84, 0.08);
 }
 
-
-/* Result heading */
-
 .scan-result h5 {
     color: #198754;
-
     margin-bottom: 1rem;
-
     font-weight: 600;
 }
 
-
-/* Result text */
-
 .scan-result p {
     margin-bottom: 8px;
-
     color: #555;
 }
 
@@ -151,26 +94,15 @@
     color: #222;
 }
 
-
-/* Details button */
-
 #details-btn {
     width: 100%;
-
     margin-top: 10px;
-
     border-radius: 10px;
-
     padding: 10px;
-
     font-weight: 500;
 }
 
-   /* Mobile */
-
-
 @media (max-width: 576px) {
-
     #scanOffcanvas {
         width: 100% !important;
     }

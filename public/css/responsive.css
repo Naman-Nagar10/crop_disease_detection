@@ -223,22 +223,6 @@
 }
 
 /* Menu button is not needed on tablet, netbook, or desktop. */
-/* Default: hidden on desktop */
 .mobile-menu-btn {
     display: none;
-}
-
-/* Mobile only */
-@media (max-width: 600px) {
-    .mobile-menu-btn {
-        display: inline-grid;
-        place-items: center;
-        width: 38px;
-        height: 38px;
-        border: 0;
-        border-radius: 9px;
-        background: #e8f3e4;
-        color: #245934;
-        font-size: 1.1rem;
-    }
 }

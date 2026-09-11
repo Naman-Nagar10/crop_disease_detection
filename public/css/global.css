@@ -9,19 +9,12 @@ html,
 body {
     width: 100%;
     min-height: 100%;
+    overflow-x: hidden;
     scroll-behavior: smooth;
 }
 
 body {
     background: #f4f7f6;
-}
-
-
-/*   SIDEBAR SPACE */
-
-.app-content {
-    margin-left: 260px;
-    min-height: 100vh;
 }
 
 .form-select select:focus {
@@ -31,13 +24,6 @@ body {
 }
 
 .form-select select option:hover {
-    background-color:  #183a2a;
+    background-color: #183a2a;
     color: #fff;
 }
-
-
-
-
-
-
-

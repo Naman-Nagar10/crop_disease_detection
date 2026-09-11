@@ -223,6 +223,8 @@
 }
 
 /* Menu button is not needed on tablet, netbook, or desktop. */
-.mobile-menu-btn {
-    display: none;
+@media (min-width: 601px) {
+    .mobile-menu-btn {
+        display: none;
+    }
 }

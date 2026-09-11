@@ -1,213 +1,499 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    /* ================= ELEMENTS ================= */
 
-    let question = document.querySelector("#question");
-    let sendBtn = document.querySelector("#sendQuestion");
-    let chatBox = document.querySelector("#chat-box");
+    const question =
+        document.querySelector("#question");
 
-    let chatOffcanvas = document.querySelector("#chatOffcanvas");
+    const sendBtn =
+        document.querySelector("#sendQuestion");
 
-    let welcomeMsg = document.querySelector("#welcome-message");
+    const chatBox =
+        document.querySelector("#chat-box");
 
-    let spinner = document.querySelector("#send-spinner");
-    let sendIcon = document.querySelector("#send-icon");
+    const chatOffcanvas =
+        document.querySelector("#chatOffcanvas");
+
+    const welcomeMsg =
+        document.querySelector("#welcome-message");
+
+    const spinner =
+        document.querySelector("#send-spinner");
+
+    const sendIcon =
+        document.querySelector("#send-icon");
 
 
-    // Welcome Message
-    let welcomeText =
+    /* ================= SAFETY CHECK ================= */
+
+    if (
+        !question ||
+        !sendBtn ||
+        !chatBox ||
+        !chatOffcanvas ||
+        !welcomeMsg
+    ) {
+
+        console.error(
+            "AI Chat elements नहीं मिले।"
+        );
+
+        return;
+
+    }
+
+
+    /* ================= WELCOME ================= */
+
+    const welcomeText =
         "Welcome to AI साथी! यह एक AI-संचालित कृषि सहायता प्रणाली है, जो आपकी फसल, मौसम पूर्वानुमान एवं मंडी भावों पर वैज्ञानिक मार्गदर्शन प्रदान करती है। कृपया अपनी समस्या स्पष्ट रूप से बताएं।";
 
+
     let welcomeIndex = 0;
+
     let welcomeStarted = false;
 
 
     function typeWelcome() {
 
-        if (welcomeIndex < welcomeText.length) {
+        if (
+            welcomeIndex >=
+            welcomeText.length
+        ) {
 
-            welcomeMsg.textContent += welcomeText[welcomeIndex];
+            return;
 
-            welcomeIndex++;
-
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            setTimeout(typeWelcome, 30);
         }
+
+
+        welcomeMsg.textContent +=
+            welcomeText[welcomeIndex];
+
+
+        welcomeIndex++;
+
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+
+
+        setTimeout(
+            typeWelcome,
+            25
+        );
+
     }
 
 
-    // Welcome typing
-    chatOffcanvas.addEventListener("shown.bs.offcanvas", () => {
+    /* ================= OPEN CHAT ================= */
 
-        if (welcomeStarted) {
-            return;
+    chatOffcanvas.addEventListener(
+        "shown.bs.offcanvas",
+        () => {
+
+            if (welcomeStarted) {
+                return;
+            }
+
+
+            welcomeStarted = true;
+
+
+            typeWelcome();
+
+        }
+    );
+
+
+    /* ================= SPINNER ================= */
+
+    function showSpinner() {
+
+        if (spinner) {
+
+            spinner.classList.remove(
+                "d-none"
+            );
+
         }
 
-        welcomeStarted = true;
 
-        typeWelcome();
+        if (sendIcon) {
 
-    });
+            sendIcon.classList.add(
+                "d-none"
+            );
 
-
-         // Send Question
-
-    sendBtn.addEventListener("click", async () => {
-
-        let userQuestion = question.value.trim();
-
-        // Empty question
-        if (userQuestion === "") {
-            return;
         }
-
-
-        // User message
-        let userMsg = document.createElement("div");
-
-        userMsg.className = "user-msg msg-content";
-
-        let userPara = document.createElement("p");
-
-        userPara.textContent = userQuestion;
-
-        userMsg.appendChild(userPara);
-
-        chatBox.appendChild(userMsg);
-
-
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-
-        question.value = "";
 
 
         sendBtn.disabled = true;
 
+    }
 
-        // Spinner ON
-        spinner.classList.remove("d-none");
 
-        sendIcon.classList.add("d-none");
+    function hideSpinner() {
+
+        if (spinner) {
+
+            spinner.classList.add(
+                "d-none"
+            );
+
+        }
+
+
+        if (sendIcon) {
+
+            sendIcon.classList.remove(
+                "d-none"
+            );
+
+        }
+
+
+        sendBtn.disabled = false;
+
+    }
+
+
+    /* ================= AI STREAM ================= */
+
+    async function askGemini(
+        userQuestion
+    ) {
+
+        showSpinner();
 
 
         try {
 
-            // Gemini API Request
-           
+            const response =
+                await fetch(
+                    "/api/chat",
+                    {
 
-            let response = await fetch("/api/chat", {
+                        method: "POST",
 
-                method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                        body: JSON.stringify({
+                            question:
+                                userQuestion
+                        })
 
-                body: JSON.stringify({
-                    question: userQuestion
-                })
-
-            });
-
-
-            let data = await response.json();
-
-
-            // Spinner OFF
-
-            spinner.classList.add("d-none");
-
-            sendIcon.classList.remove("d-none");
-
-            sendBtn.disabled = false;
+                    }
+                );
 
 
-            // AI Message Box
+            if (!response.ok) {
 
-            let aiBox = document.createElement("div");
+                const errorText =
+                    await response.text();
 
-            aiBox.className = "ai-msg msg-content";
-
-
-            let aiPara = document.createElement("p");
-
-            aiBox.appendChild(aiPara);
-
-            chatBox.appendChild(aiBox);
-
-
-            // Gemini answer
-            let aiMessage = data.answer;
-
-
-            // AI Typing Effect
-            let i = 0;
-
-
-            function typeMsg() {
-
-                if (i < aiMessage.length) {
-
-                    aiPara.textContent += aiMessage[i];
-
-                    i++;
-
-                    chatBox.scrollTop = chatBox.scrollHeight;
-
-                    setTimeout(typeMsg, 30);
-
-                }
+                throw new Error(
+                    errorText ||
+                    "AI response failed"
+                );
 
             }
 
 
-            typeMsg();
+            /* ================= AI BOX ================= */
+
+            const aiBox =
+                document.createElement(
+                    "div"
+                );
+
+            aiBox.className =
+                "ai-msg msg-content";
+
+
+            const aiPara =
+                document.createElement(
+                    "p"
+                );
+
+
+            aiBox.appendChild(
+                aiPara
+            );
+
+
+            chatBox.appendChild(
+                aiBox
+            );
+
+
+            /* ================= STREAM ================= */
+
+            if (!response.body) {
+
+                throw new Error(
+                    "Streaming response नहीं मिला।"
+                );
+
+            }
+
+
+            const reader =
+                response.body.getReader();
+
+
+            const decoder =
+                new TextDecoder(
+                    "utf-8"
+                );
+
+
+            let fullText = "";
+
+
+            while (true) {
+
+                const {
+                    value,
+                    done
+                } =
+                    await reader.read();
+
+
+                if (done) {
+                    break;
+                }
+
+
+                const chunk =
+                    decoder.decode(
+                        value,
+                        {
+                            stream: true
+                        }
+                    );
+
+
+                fullText += chunk;
+
+
+                aiPara.textContent =
+                    fullText;
+
+
+                /* AUTO SCROLL */
+
+                chatBox.scrollTop =
+                    chatBox.scrollHeight;
+
+            }
+
+
+            /* ================= FINAL CHUNK ================= */
+
+            const finalChunk =
+                decoder.decode();
+
+
+            if (finalChunk) {
+
+                fullText +=
+                    finalChunk;
+
+
+                aiPara.textContent =
+                    fullText;
+
+            }
 
 
         } catch (error) {
 
-            console.log(error);
+            console.error(
+                "Gemini error:",
+                error
+            );
 
 
-            // Spinner OFF
-            spinner.classList.add("d-none");
-
-            sendIcon.classList.remove("d-none");
-
-            sendBtn.disabled = false;
+            const errorBox =
+                document.createElement(
+                    "div"
+                );
 
 
-            // Error message
-            let errorBox = document.createElement("div");
-
-            errorBox.className = "ai-msg msg-content";
-
-            errorBox.innerHTML =
-                "<p>माफ कीजिए, अभी AI से response नहीं मिल पाया। कृपया थोड़ी देर बाद फिर कोशिश करें।</p>";
+            errorBox.className =
+                "ai-msg msg-content";
 
 
-            chatBox.appendChild(errorBox);
+            const errorPara =
+                document.createElement(
+                    "p"
+                );
 
-            chatBox.scrollTop = chatBox.scrollHeight;
+
+            errorPara.textContent =
+                "माफ कीजिए, अभी AI से response नहीं मिल पाया। कृपया थोड़ी देर बाद फिर कोशिश करें।";
+
+
+            errorBox.appendChild(
+                errorPara
+            );
+
+
+            chatBox.appendChild(
+                errorBox
+            );
+
+
+            chatBox.scrollTop =
+                chatBox.scrollHeight;
+
+
+        } finally {
+
+            hideSpinner();
 
         }
+
+    }
+
+
+    /* ================= NORMAL MESSAGE ================= */
+
+    sendBtn.addEventListener(
+        "click",
+        async () => {
+
+            const userQuestion =
+                question.value.trim();
+
+
+            if (!userQuestion) {
+
+                return;
+
+            }
+
+
+            /* USER MESSAGE */
+
+            const userMsg =
+                document.createElement(
+                    "div"
+                );
+
+
+            userMsg.className =
+                "user-msg msg-content";
+
+
+            const userPara =
+                document.createElement(
+                    "p"
+                );
+
+
+            userPara.textContent =
+                userQuestion;
+
+
+            userMsg.appendChild(
+                userPara
+            );
+
+
+            chatBox.appendChild(
+                userMsg
+            );
+
+
+            /* SCROLL */
+
+            chatBox.scrollTop =
+                chatBox.scrollHeight;
+
+
+            /* CLEAR INPUT */
+
+            question.value = "";
+
+
+            /* AI */
+
+            await askGemini(
+                userQuestion
+            );
+
+        }
+    );
+
+
+    
+
+    
+
+// ================= DISEASE DETAILS =================
+
+    document.addEventListener("diseaseDetailsReady", (event) => {
+
+        const disease = event.detail.disease;
+        const crop = event.detail.crop;
+
+        if (!disease) {
+            return;
+        }
+
+        const diseaseQuestion = `
+    मेरी ${crop} की फसल में ${disease} बीमारी detect हुई है।
+
+    यह बीमारी मेरी फसल में पहले ही आ चुकी है, इसलिए मुझे केवल बीमारी के बारे में जानकारी नहीं चाहिए।
+
+    मुझे अपनी फसल को बचाने के लिए अभी क्या करना चाहिए, यह बताइए।
+
+    कृपया बताएं:
+
+    1. बीमारी से फसल को क्या नुकसान हो सकता है।
+    2. अभी तुरंत कौन-कौन से practical कदम उठाने चाहिए।
+    3. कौन-सा appropriate pesticide/fungicide या active ingredient इस्तेमाल किया जा सकता है।
+    4. Chemical treatment के साथ कौन-से अन्य effective control उपाय करने चाहिए।
+    5. बीमारी को स्वस्थ पौधों में फैलने से कैसे रोकें।
+    6. आगे के लिए कौन-कौन सी सावधानियां रखें।
+
+    जहां chemical treatment लागू हो, वहां pesticide/fungicide का नाम या active ingredient बताएं, लेकिन dose और application केवल approved product label और स्थानीय कृषि विशेषज्ञ की सलाह के अनुसार बताएं।
+
+    जवाब आसान Hindi/Hinglish में, short और practical points में दें।
+    `;
+
+        // Question सिर्फ input box में आएगा
+        question.value = diseaseQuestion.trim();
+
+        // Input box पर focus
+        question.focus();
 
     });
 
 
-    // Enter Key
+    /* ================= ENTER ================= */
 
-    question.addEventListener("keypress", (e) => {
+    question.addEventListener(
+        "keydown",
+        (event) => {
 
-        if (e.key === "Enter") {
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
 
-            e.preventDefault();
+                event.preventDefault();
 
-            sendBtn.click();
+                sendBtn.click();
+
+            }
 
         }
+    );
 
-    });
 
 });

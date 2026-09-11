@@ -6,13 +6,6 @@
     style="width: 500px;">
 
     <div class="offcanvas-header">
-        <!-- <div>
-            <h2 class="offcanvas-title" id="scanOffcanvasLabel">
-                फसल की फोटो से जाँच करें
-            </h2>
-
-            <p>अच्छी रोशनी में पत्ते साफ़ फोटो लें।।</p>
-        </div> -->
 
         <button
             type="button"
@@ -20,67 +13,231 @@
             data-bs-dismiss="offcanvas"
             aria-label="Close">
         </button>
-    </div>
-    <hr>
 
+    </div>
+
+    <hr>
 
     <div class="offcanvas-body">
 
         <div class="title-container">
+
             <div class="title">
-                <i class="fa-solid fa-upload"></i>
-                <h3>फसल की<span> PHOTO भेजें</span></h3>
+
+                <i class="fa-solid fa-leaf"></i>
+
+                <h3>
+                    फसल की <span>PHOTO भेजें</span>
+                </h3>
+
             </div>
-            <p>अच्छी रोशनी में पत्ते की साफ़ फोटो लें।</p>
+
+            <p>
+                पहले फसल चुनें और फिर पत्ते की साफ़ फोटो लें।
+            </p>
+
         </div>
 
         <hr>
 
-       
 
-        <div class="scn-body">
+        <!-- ================= CROP SELECT ================= -->
 
-            <div class="camera-box" id="camera-box">
-                <video id="video" autoplay playsinline></video>
-                <img id="captured-image" class="captured-image" alt="Captured"/>
-                <div class="camera-placeholder" id="camera-placeholder">
-                    <i class="fa-solid fa-camera"></i>
-                    Open Camera
-                </div>
-            </div>
+        <div class="crop-selection">
 
+            <label for="crop-select">
+                <strong>फसल चुनें</strong>
+            </label>
 
-            <div class="action-row">
-                
-                <button id="start-camera-btn" class="btn btn-success">Start Camera</button>
-                <button id="click-btn" class="btn btn-success">Click</button>
-                <button id="upload-btn" class="btn btn-success">Upload</button>
-            </div>
+            <select
+                id="crop-select"
+                class="form-select">
 
-            <input type="file" class="file-input" id="file-input" accept="image/*"/>
+                <option value="">
+                    -- फसल चुनें --
+                </option>
 
-            <div class="second-link" id="second-link">Select another image</div>
+                <option value="Sugarcane">
+                    गन्ना (Sugarcane)
+                </option>
 
+                <option value="Rice">
+                    धान (Rice)
+                </option>
+
+                <option value="Wheat">
+                    गेहूं (Wheat)
+                </option>
+
+            </select>
 
         </div>
 
-        <div id="scan-result" class="scan-result d-none">
-            <h5>Disease Detected</h5>
+
+        <!-- ================= CAMERA ================= -->
+
+        <div class="scn-body">
+
+            <div
+                class="camera-box"
+                id="camera-box">
+
+                <video
+                    id="video"
+                    autoplay
+                    playsinline>
+                </video>
+
+                <img
+                    id="captured-image"
+                    class="captured-image"
+                    alt="Captured image">
+
+                <div
+                    class="camera-placeholder"
+                    id="camera-placeholder">
+
+                    <i class="fa-solid fa-camera"></i>
+
+                    <span>
+                        Camera / Image
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= ACTION BUTTONS ================= -->
+
+            <div class="action-row">
+
+                <button
+                    id="start-camera-btn"
+                    class="btn btn-success">
+
+                    <i class="fa-solid fa-camera"></i>
+                    Camera
+
+                </button>
+
+
+                <button
+                    id="click-btn"
+                    class="btn btn-success">
+
+                    <i class="fa-solid fa-camera-retro"></i>
+                    Click
+
+                </button>
+
+
+                <button
+                    id="upload-btn"
+                    class="btn btn-success">
+
+                    <span
+                        id="upload-spinner"
+                        class="spinner-border spinner-border-sm d-none">
+                    </span>
+
+                    <i
+                        id="upload-icon"
+                        class="fa-solid fa-upload">
+                    </i>
+
+                    <span id="upload-text">
+                        Detect
+                    </span>
+
+                </button>
+
+            </div>
+
+
+            <!-- Hidden file input -->
+
+            <input
+                type="file"
+                id="file-input"
+                class="file-input"
+                accept="image/*"
+                capture="environment">
+
+
+            <div
+                class="second-link"
+                id="second-link">
+
+                Select another image
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= RESULT ================= -->
+
+        <div
+            id="scan-result"
+            class="scan-result d-none">
+
+            <h5 id="result-heading">
+                Disease Detected
+            </h5>
+
 
             <p>
+                Crop:
+                <strong id="crop-name"></strong>
+            </p>
+
+
+            <p id="disease-row">
+
                 Disease:
                 <strong id="disease-name"></strong>
+
             </p>
+
 
             <p>
                 Confidence:
                 <strong id="confidence"></strong>%
+
             </p>
 
-            <button id="details-btn" class="btn btn-success">
+
+            <!-- Healthy message -->
+
+            <div
+                id="healthy-message"
+                class="healthy-message d-none">
+
+                <i class="fa-solid fa-circle-check"></i>
+
+                <span>
+                    आपकी फसल स्वस्थ दिखाई दे रही है।
+                    नियमित रूप से फसल की निगरानी और उचित देखभाल जारी रखें।
+                </span>
+
+            </div>
+
+
+            <!-- Disease details -->
+
+            <button
+                id="details-btn"
+                class="btn btn-success d-none">
+
+                <i class="fa-solid fa-stethoscope"></i>
+
                 View Details
+
             </button>
+
         </div>
-        
+
     </div>
+
 </div>

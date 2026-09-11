@@ -1,160 +1,747 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    let startCameraBtn = document.querySelector("#start-camera-btn");
-    let clickBtn = document.querySelector("#click-btn");
+    /* ================= ELEMENTS ================= */
 
-    let video = document.querySelector("#video");
-    let capturedImage = document.querySelector("#captured-image");
+    const cropSelect =
+        document.querySelector("#crop-select");
 
-    let stream;
+    const startCameraBtn =
+        document.querySelector("#start-camera-btn");
+
+    const clickBtn =
+        document.querySelector("#click-btn");
+
+    const uploadBtn =
+        document.querySelector("#upload-btn");
+
+    const uploadSpinner =
+        document.querySelector("#upload-spinner");
+
+    const uploadIcon =
+        document.querySelector("#upload-icon");
+
+    const uploadText =
+        document.querySelector("#upload-text");
+
+    const video =
+        document.querySelector("#video");
+
+    const capturedImage =
+        document.querySelector("#captured-image");
+
+    const cameraPlaceholder =
+        document.querySelector("#camera-placeholder");
+
+    const fileInput =
+        document.querySelector("#file-input");
+
+    const secondLink =
+        document.querySelector("#second-link");
+
+    const scanResult =
+        document.querySelector("#scan-result");
+
+    const cropName =
+        document.querySelector("#crop-name");
+
+    const diseaseName =
+        document.querySelector("#disease-name");
+
+    const diseaseRow =
+        document.querySelector("#disease-row");
+
+    const confidence =
+        document.querySelector("#confidence");
+
+    const detailsBtn =
+        document.querySelector("#details-btn");
+
+    const healthyMessage =
+        document.querySelector("#healthy-message");
+
+    const resultHeading =
+        document.querySelector("#result-heading");
+
+
+    /* ================= VARIABLES ================= */
+
+    let stream = null;
+
     let capturedFile = null;
 
-    let scanResult = document.querySelector("#scan-result");
-    let diseaseName = document.querySelector("#disease-name");
-    let confidence = document.querySelector("#confidence");
+    let detectedDisease = "";
+
+    let selectedCrop = "";
 
 
-    // Start Camera
-    startCameraBtn.addEventListener("click", async () => {
+    /* ================= CROP CHANGE ================= */
 
-        try {
+    cropSelect.addEventListener("change", () => {
 
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: false
-            });
+        selectedCrop =
+            cropSelect.value;
 
-            video.srcObject = stream;
+        // Reset previous image/result
 
-            video.style.display = "block";
+        capturedFile = null;
 
-        } catch (error) {
+        detectedDisease = "";
 
-            console.error("Error accessing camera:", error);
+        scanResult.classList.add("d-none");
 
-            alert("Camera access nahi mil paya");
+        capturedImage.style.display = "none";
 
-        }
+        video.style.display = "none";
+
+        cameraPlaceholder.style.display = "flex";
+
+        fileInput.value = "";
 
     });
 
 
-    // Click Photo
-    clickBtn.addEventListener("click", () => {
+    /* ================= START CAMERA ================= */
 
-        if (!stream) {
+    startCameraBtn.addEventListener(
+        "click",
+        async () => {
 
-            alert("Camera start nahi hua hai");
+            if (!selectedCrop) {
 
-            return;
+                alert("पहले फसल चुनें।");
+
+                return;
+
+            }
+
+
+            try {
+
+                // Stop previous camera
+
+                if (stream) {
+
+                    stream
+                        .getTracks()
+                        .forEach(track => track.stop());
+
+                }
+
+
+                stream =
+                    await navigator.mediaDevices.getUserMedia({
+
+                        video: {
+                            facingMode: {
+                                ideal: "environment"
+                            }
+                        },
+
+                        audio: false
+
+                    });
+
+
+                video.srcObject =
+                    stream;
+
+
+                video.style.display =
+                    "block";
+
+
+                capturedImage.style.display =
+                    "none";
+
+
+                cameraPlaceholder.style.display =
+                    "none";
+
+
+                scanResult.classList.add(
+                    "d-none"
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Camera error:",
+                    error
+                );
+
+                alert(
+                    "Camera access nahi mil paya. Browser permission check karein."
+                );
+
+            }
+
         }
+    );
 
 
-        let canvas = document.createElement("canvas");
+    /* ================= CLICK PHOTO ================= */
 
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+    clickBtn.addEventListener(
+        "click",
+        () => {
+
+            if (!selectedCrop) {
+
+                alert("पहले फसल चुनें।");
+
+                return;
+
+            }
 
 
-        let context = canvas.getContext("2d");
+            if (!stream) {
 
-        context.drawImage(
-            video,
-            0,
-            0,
-            canvas.width,
-            canvas.height
+                alert(
+                    "Pehle camera start karein."
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !video.videoWidth ||
+                !video.videoHeight
+            ) {
+
+                alert(
+                    "Camera abhi ready nahi hai."
+                );
+
+                return;
+
+            }
+
+
+            const canvas =
+                document.createElement(
+                    "canvas"
+                );
+
+
+            canvas.width =
+                video.videoWidth;
+
+            canvas.height =
+                video.videoHeight;
+
+
+            const context =
+                canvas.getContext("2d");
+
+
+            context.drawImage(
+                video,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            capturedImage.src =
+                canvas.toDataURL(
+                    "image/jpeg",
+                    0.9
+                );
+
+
+            canvas.toBlob(
+                (blob) => {
+
+                    if (!blob) {
+
+                        alert(
+                            "Photo capture nahi ho payi."
+                        );
+
+                        return;
+
+                    }
+
+
+                    capturedFile =
+                        new File(
+                            [blob],
+                            "captured-image.jpg",
+                            {
+                                type: "image/jpeg"
+                            }
+                        );
+
+                },
+                "image/jpeg",
+                0.9
+            );
+
+
+            // Stop camera
+
+            stream
+                .getTracks()
+                .forEach(track => {
+                    track.stop();
+                });
+
+
+            video.srcObject =
+                null;
+
+            stream =
+                null;
+
+
+            video.style.display =
+                "none";
+
+
+            capturedImage.style.display =
+                "block";
+
+
+            cameraPlaceholder.style.display =
+                "none";
+
+
+            scanResult.classList.add(
+                "d-none"
+            );
+
+        }
+    );
+
+
+    /* ================= SELECT IMAGE ================= */
+
+    secondLink.addEventListener(
+        "click",
+        () => {
+
+            if (!selectedCrop) {
+
+                alert("पहले फसल चुनें।");
+
+                return;
+
+            }
+
+            fileInput.click();
+
+        }
+    );
+
+
+    /* ================= FILE CHANGE ================= */
+
+    fileInput.addEventListener(
+        "change",
+        () => {
+
+            const file =
+                fileInput.files[0];
+
+
+            if (!file) {
+
+                return;
+
+            }
+
+
+            capturedFile =
+                file;
+
+
+            const imageURL =
+                URL.createObjectURL(file);
+
+
+            capturedImage.src =
+                imageURL;
+
+
+            capturedImage.style.display =
+                "block";
+
+
+            video.style.display =
+                "none";
+
+
+            cameraPlaceholder.style.display =
+                "none";
+
+
+            scanResult.classList.add(
+                "d-none"
+            );
+
+        }
+    );
+
+
+    /* ================= UPLOAD / DETECT ================= */
+
+    uploadBtn.addEventListener(
+        "click",
+        async () => {
+
+            /* Crop check */
+
+            if (!selectedCrop) {
+
+                alert("पहले फसल चुनें।");
+
+                return;
+
+            }
+
+
+            const file =
+                capturedFile ||
+                fileInput.files[0];
+
+
+            if (!file) {
+
+                alert(
+                    "पहले image capture या select करें."
+                );
+
+                return;
+
+            }
+
+
+            scanResult.classList.add(
+                "d-none"
+            );
+
+
+            /* Loading ON */
+
+            uploadBtn.disabled =
+                true;
+
+            uploadSpinner.classList.remove(
+                "d-none"
+            );
+
+            uploadIcon.classList.add(
+                "d-none"
+            );
+
+            uploadText.textContent =
+                "Detecting...";
+
+
+            const formData =
+                new FormData();
+
+
+            formData.append(
+                "image",
+                file
+            );
+
+
+            formData.append(
+                "crop",
+                selectedCrop
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/scan",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                console.log(
+                    "Scan response:",
+                    data
+                );
+
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+
+                    throw new Error(
+                        data.message ||
+                        "Disease detection failed"
+                    );
+
+                }
+
+
+                /* ================= RESULT ================= */
+
+                detectedDisease =
+                    data.disease;
+
+
+                cropName.textContent =
+                    data.crop ||
+                    selectedCrop;
+
+
+                diseaseName.textContent =
+                    data.disease;
+
+
+                confidence.textContent =
+                    data.confidence;
+
+
+                scanResult.classList.remove(
+                    "d-none"
+                );
+
+
+                /* ================= HEALTHY ================= */
+
+                const isHealthy =
+                    data.status === "healthy" ||
+                    data.disease.toLowerCase() ===
+                    "healthy";
+
+
+                if (isHealthy) {
+
+                    resultHeading.textContent =
+                        " Crop Healthy";
+
+
+                    diseaseRow.classList.add(
+                        "d-none"
+                    );
+
+
+                    healthyMessage.classList.remove(
+                        "d-none"
+                    );
+
+
+                    detailsBtn.classList.add(
+                        "d-none"
+                    );
+
+
+                } else {
+
+                    /* ================= DISEASE ================= */
+
+                    resultHeading.textContent =
+                        " Disease Detected";
+
+
+                    diseaseRow.classList.remove(
+                        "d-none"
+                    );
+
+
+                    healthyMessage.classList.add(
+                        "d-none"
+                    );
+
+
+                    detailsBtn.classList.remove(
+                        "d-none"
+                    );
+
+                }
+
+
+                scanResult.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+
+
+            } catch (error) {
+
+                console.error(
+                    "Scan error:",
+                    error
+                );
+
+
+                alert(
+                    "Disease detection nahi ho payi. Please try again."
+                );
+
+
+            } finally {
+
+                uploadBtn.disabled =
+                    false;
+
+
+                uploadSpinner.classList.add(
+                    "d-none"
+                );
+
+
+                uploadIcon.classList.remove(
+                    "d-none"
+                );
+
+
+                uploadText.textContent =
+                    "Detect";
+
+            }
+
+        }
+    );
+
+
+    /* ================= VIEW DETAILS ================= */
+
+    detailsBtn.addEventListener(
+        "click",
+        () => {
+
+            if (!detectedDisease) {
+
+                return;
+
+            }
+
+
+            /* Healthy ko Gemini par mat bhejna */
+
+            if (
+                detectedDisease.toLowerCase() ===
+                "healthy"
+            ) {
+
+                return;
+
+            }
+
+
+            /* Close Scan */
+
+            const scanOffcanvas =
+                document.querySelector(
+                    "#scanOffcanvas"
+                );
+
+
+            const scanInstance =
+                bootstrap.Offcanvas.getInstance(
+                    scanOffcanvas
+                );
+
+
+            if (scanInstance) {
+
+                scanInstance.hide();
+
+            }
+
+
+            /* Open Chat */
+
+            const chatOffcanvas =
+                document.querySelector(
+                    "#chatOffcanvas"
+                );
+
+
+            if (chatOffcanvas) {
+
+                const chat =
+                    bootstrap.Offcanvas
+                        .getOrCreateInstance(
+                            chatOffcanvas
+                        );
+
+
+                chat.show();
+
+            }
+
+
+            /* Send data to chat */
+
+            document.dispatchEvent(
+
+                new CustomEvent(
+                    "diseaseDetailsReady",
+                    {
+                        detail: {
+
+                            crop:
+                                selectedCrop,
+
+                            disease:
+                                detectedDisease
+
+                        }
+                    }
+                )
+
+            );
+
+        }
+    );
+
+
+    /* ================= RESET ON CLOSE ================= */
+
+    const scanOffcanvas =
+        document.querySelector(
+            "#scanOffcanvas"
         );
 
 
-        capturedImage.src = canvas.toDataURL("image/png");
+    if (scanOffcanvas) {
 
-        canvas.toBlob((blob) => {
-            capturedFile = new File([blob], "captured-image.png", {
-                type: "image/png"
-            });
-        }, "image/png");
+        scanOffcanvas.addEventListener(
+            "hidden.bs.offcanvas",
+            () => {
 
-        stream.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-        stream = null;
+                if (stream) {
 
-        capturedImage.style.display = "block";
+                    stream
+                        .getTracks()
+                        .forEach(
+                            track =>
+                                track.stop()
+                        );
 
-    });
+                    stream =
+                        null;
 
+                    video.srcObject =
+                        null;
 
+                }
 
-    let fileInput =document.querySelector("#file-input");
-    let secondLink = document.querySelector("#second-link");
+            }
+        );
 
-
-    secondLink.addEventListener("click", () => {
-        fileInput.click();
-    });
-
-
-
-    fileInput.addEventListener("change", () => {
-
-    let file = fileInput.files[0];
-
-    if (!file) {
-        return;
     }
-
-    let imageURL = URL.createObjectURL(file);
-
-    capturedImage.src = imageURL;
-
-    capturedImage.style.display = "block";
-
-    video.style.display = "none";
-
-    });
-
-
-    let uploadBtn = document.querySelector("#upload-btn");
-
-    uploadBtn.addEventListener("click", async () => {
-
-        let file = capturedFile || fileInput.files[0];
-
-        if (!file) {
-            alert("पहले image select करें।");
-            return;
-        }
-
-        let formData = new FormData();
-
-        formData.append("image", file);
-
-        try {
-
-            let response = await fetch("/api/scan", {
-                method: "POST",
-                body: formData
-            });
-
-            let data = await response.json();
-
-            console.log(data);
-
-            diseaseName.textContent = data.disease;
-            confidence.textContent = data.confidence;
-
-            scanResult.classList.remove("d-none");
-            
-        } catch (error) {
-
-            console.log(error);
-
-            alert("Image upload नहीं हो पाई।");
-
-        }
-
-    });
-
-    console.log(req.file);
 
 });

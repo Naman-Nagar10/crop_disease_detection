@@ -6,40 +6,116 @@
     padding: 1.2rem;
 }
 
+
+/* ================= TITLE ================= */
+
+.title-container {
+    margin-bottom: 15px;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title i {
+    color: #198754;
+    font-size: 1.5rem;
+}
+
+.title h3 {
+    margin: 0;
+}
+
+.title h3 span {
+    color: #198754;
+}
+
+.title-container p {
+    margin: 8px 0 0 35px;
+    color: #666;
+}
+
+
+/* ================= CROP SELECT ================= */
+
+.crop-selection {
+    margin-bottom: 18px;
+}
+
+.crop-selection label {
+    display: block;
+    margin-bottom: 7px;
+    color: #333;
+}
+
+#crop-select {
+    border: 1px solid #b9dbc3;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#crop-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.15rem rgba(25, 135, 84, 0.15);
+}
+
+
+/* ================= CAMERA ================= */
+
 .camera-box {
     width: 100%;
     height: 280px;
+
     background: #eaf7ee;
+
     border: 2px dashed #198754;
+
     border-radius: 16px;
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     overflow: hidden;
+
     position: relative;
 }
 
 #video {
     width: 100%;
     height: 100%;
+
     object-fit: cover;
+
     display: none;
 }
 
 .captured-image {
     width: 100%;
     height: 100%;
+
     object-fit: cover;
+
     display: none;
 }
 
 .camera-placeholder {
     display: flex;
+
     flex-direction: column;
+
     align-items: center;
+
     justify-content: center;
+
     gap: 10px;
+
     color: #198754;
+
     font-size: 1rem;
 }
 
@@ -47,17 +123,37 @@
     font-size: 2.5rem;
 }
 
+
+/* ================= BUTTONS ================= */
+
 .action-row {
     display: flex;
+
     gap: 10px;
+
     margin-top: 1rem;
+}
+
+.action-row button {
+    flex: 1;
+}
+
+
+/* ================= FILE ================= */
+
+.file-input {
+    display: none;
 }
 
 .second-link {
     text-align: center;
+
     margin-top: 15px;
+
     color: #198754;
+
     font-size: 0.9rem;
+
     cursor: pointer;
 }
 
@@ -65,28 +161,36 @@
     text-decoration: underline;
 }
 
-.file-input {
-    display: none;
-}
+
+/* ================= RESULT ================= */
 
 .scan-result {
     margin-top: 1.5rem;
+
     padding: 1.2rem;
+
     background: #ffffff;
+
     border: 1px solid #d7eadc;
+
     border-left: 5px solid #198754;
+
     border-radius: 14px;
+
     box-shadow: 0 5px 15px rgba(25, 135, 84, 0.08);
 }
 
 .scan-result h5 {
     color: #198754;
+
     margin-bottom: 1rem;
+
     font-weight: 600;
 }
 
 .scan-result p {
     margin-bottom: 8px;
+
     color: #555;
 }
 
@@ -94,15 +198,53 @@
     color: #222;
 }
 
+
+/* ================= HEALTHY ================= */
+
+.healthy-message {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 10px;
+
+    margin-top: 12px;
+
+    padding: 12px;
+
+    background: #eefaf1;
+
+    border-radius: 10px;
+
+    color: #198754;
+
+    line-height: 1.5;
+}
+
+.healthy-message i {
+    margin-top: 3px;
+}
+
+
+/* ================= DETAILS BUTTON ================= */
+
 #details-btn {
     width: 100%;
-    margin-top: 10px;
+
+    margin-top: 12px;
+
     border-radius: 10px;
+
     padding: 10px;
+
     font-weight: 500;
 }
 
+
+/* ================= MOBILE ================= */
+
 @media (max-width: 576px) {
+
     #scanOffcanvas {
         width: 100% !important;
     }
@@ -114,4 +256,5 @@
     .action-row {
         flex-direction: column;
     }
+
 }

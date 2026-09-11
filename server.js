@@ -1,6 +1,8 @@
 require("dotenv").config();
 
+const fs = require("fs");
 const crypto = require("crypto");
+
 const path = require("path");
 const express = require("express");
 const multer = require("multer");
@@ -297,54 +299,426 @@ app.post("/admin/schemes/:id/delete", requireLogin, requireAdmin, async (request
     }
 });
 
+
+
 // ---------- AI chat ----------
 
 app.post("/api/chat", async (request, response) => {
+
     if (!process.env.GEMINI_API_KEY) {
-        return response.json({
-            answer: "Demo mode\n\nअपनी फसल, मिट्टी और समस्या बताइए।\nमैं सुरक्षित कृषि सलाह देने में मदद करूँगा।"
-        });
+
+        return response.status(500).send(
+            "Gemini API key नहीं मिली।"
+        );
     }
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-        const prompt = `You are Krishi Rakshak, an Indian agriculture assistant.
-Reply in simple Hindi/Hinglish using this exact readable format:
-समस्या समझें:
-[one short line]
 
-क्या करें:
-1. [first practical step]
-2. [second practical step]
-
-सावधानी:
-[one short safety note]
-
-Do not write one long paragraph. Use short lines and blank lines between sections.
-Farmer question: ${request.body.question}`;
-
-        const result = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
-            contents: prompt
+        const ai = new GoogleGenAI({
+            apiKey: process.env.GEMINI_API_KEY
         });
 
-        response.json({ answer: result.text });
+
+        const prompt = `
+You are Krishi Rakshak, an Indian agriculture assistant.
+
+The farmer is asking about agriculture or crop disease.
+
+Give practical, concise and easy-to-understand Hindi/Hinglish advice.
+
+If a disease has already been detected, focus mainly on saving the crop.
+
+Use this structure:
+
+ बीमारी:
+
+Briefly explain the disease and its effect on the crop.
+
+ अभी क्या करें:
+
+Give immediate practical steps.
+
+ Chemical Control:
+
+Mention suitable chemical-control options only when genuinely applicable.
+
+Prefer active ingredient names.
+
+Do not invent pesticide names, doses, concentrations or application intervals.
+
+Tell the farmer to follow the product label and locally approved agricultural recommendations.
+
+ रोकथाम:
+
+Explain how to prevent further spread.
+
+ सावधानी:
+
+Give important crop and pesticide safety precautions.
+
+Keep answers short.
+
+Do not write one large paragraph.
+
+Farmer question:
+
+${request.body.question}
+`;
+
+
+        // ================= GEMINI STREAM =================
+
+        const stream =
+            await ai.models.generateContentStream({
+
+                model: "gemini-3.6-flash",
+
+                contents: prompt
+
+            });
+
+
+        // ================= STREAM HEADERS =================
+
+        response.setHeader(
+            "Content-Type",
+            "text/plain; charset=utf-8"
+        );
+
+        response.setHeader(
+            "Cache-Control",
+            "no-cache, no-transform"
+        );
+
+        response.setHeader(
+            "Connection",
+            "keep-alive"
+        );
+
+        response.setHeader(
+            "X-Accel-Buffering",
+            "no"
+        );
+
+
+        // ================= SEND CHUNKS =================
+
+        for await (const chunk of stream) {
+
+            const text = chunk.text || "";
+
+            if (text) {
+
+                response.write(text);
+
+            }
+
+        }
+
+
+        response.end();
+
+
     } catch (error) {
-        console.error("AI chat error:", error.message);
-        response.status(502).json({
-            answer: "AI service अभी उपलब्ध नहीं है।\n\nकृपया थोड़ी देर बाद फिर कोशिश करें।"
-        });
+
+        console.error(
+            "AI chat error:",
+            error
+        );
+
+
+        if (!response.headersSent) {
+
+            response.status(502).send(
+                "AI service अभी उपलब्ध नहीं है।"
+            );
+
+        } else {
+
+            response.end();
+
+        }
+
     }
+
 });
 
 // The actual crop model can later replace this demo response.
-app.post("/api/scan", upload.single("image"), (request, response) => {
-    response.json({
-        success: true,
-        disease: "Leaf Spot",
-        confidence: 92
-    });
-});
+// ---------- Crop Disease Scan ----------
+
+app.post(
+    "/api/scan",
+    upload.single("image"),
+    async (request, response) => {
+
+        try {
+
+            if (!request.file) {
+
+                return response.status(400).json({
+                    success: false,
+                    message: "Image नहीं मिली"
+                });
+
+            }
+
+
+            const crop =
+                request.body.crop;
+
+
+            if (!crop) {
+
+                return response.status(400).json({
+                    success: false,
+                    message: "Crop select नहीं की गई"
+                });
+
+            }
+
+
+            console.log(
+                "Crop:",
+                crop
+            );
+
+            console.log(
+                "Image received:",
+                request.file.originalname
+            );
+
+
+            /* =================================================
+               RICE - DUMMY
+            ================================================= */
+
+            if (crop === "Rice") {
+
+                return response.json({
+
+                    success: true,
+
+                    crop: "Rice",
+
+                    disease: "Healthy",
+
+                    confidence: 95,
+
+                    status: "healthy"
+
+                });
+
+            }
+
+
+            /* =================================================
+               WHEAT - DUMMY
+            ================================================= */
+
+            if (crop === "Wheat") {
+
+                return response.json({
+
+                    success: true,
+
+                    crop: "Wheat",
+
+                    disease: "Leaf Rust",
+
+                    confidence: 91,
+
+                    status: "disease"
+
+                });
+
+            }
+
+
+            /* =================================================
+               SUGARCANE - REAL ROBOFLOW
+            ================================================= */
+
+            if (crop === "Sugarcane") {
+
+
+                // Image → Base64
+
+                const imageBuffer =
+                    fs.readFileSync(
+                        request.file.path
+                    );
+
+
+                const base64Image =
+                    imageBuffer.toString(
+                        "base64"
+                    );
+
+
+                // Roboflow Workflow
+
+                const roboflowResponse =
+                    await fetch(
+
+                        "https://serverless.roboflow.com/naman-nagar/workflows/cropdiseasedetection-vcropdiseasedetection-yj2yz-1-resnet50-t1-logic",
+
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${process.env.ROBOFLOW_API_KEY}`
+
+                            },
+
+                            body: JSON.stringify({
+
+                                inputs: {
+
+                                    image: {
+
+                                        type: "base64",
+
+                                        value:
+                                            base64Image
+
+                                    }
+
+                                }
+
+                            })
+
+                        }
+
+                    );
+
+
+                const result =
+                    await roboflowResponse.json();
+
+
+                console.dir(
+                    result,
+                    { depth: null }
+                );
+
+
+                /* Roboflow error */
+
+                if (!roboflowResponse.ok) {
+
+                    console.error(
+                        "Roboflow API error:",
+                        result
+                    );
+
+
+                    return response.status(502).json({
+
+                        success: false,
+
+                        message:
+                            "Disease detection service unavailable"
+
+                    });
+
+                }
+
+
+                /* Prediction */
+
+                const prediction =
+                    result
+                        ?.outputs?.[0]
+                        ?.predictions;
+
+
+                if (!prediction) {
+
+                    return response.status(500).json({
+
+                        success: false,
+
+                        message:
+                            "Prediction नहीं मिली"
+
+                    });
+
+                }
+
+
+                const disease =
+                    prediction.top;
+
+
+                const confidence =
+                    Math.round(
+                        prediction.confidence * 100
+                    );
+
+
+                const isHealthy =
+                    disease.toLowerCase() ===
+                    "healthy";
+
+
+                return response.json({
+
+                    success: true,
+
+                    crop: "Sugarcane",
+
+                    disease: disease,
+
+                    confidence: confidence,
+
+                    status:
+                        isHealthy
+                            ? "healthy"
+                            : "disease"
+
+                });
+
+            }
+
+
+            /* Unknown crop */
+
+            return response.status(400).json({
+
+                success: false,
+
+                message: "Invalid crop selected"
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Roboflow error:",
+                error
+            );
+
+
+            return response.status(500).json({
+
+                success: false,
+
+                message:
+                    "Disease detection failed"
+
+            });
+
+        }
+
+    }
+);
 
 // ---------- Error handling and startup ----------
 

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <%- include('partials/head') %>
+    <title>मंडी भाव · Krishi Rakshak</title>
+</head>
+<body>
+    <header><%- include('partials/navbar') %></header>
+    <div class="layout">
+        <%- include('partials/sidebar') %>
+        <main class="main-content page-content mandi-page">
+            <a class="back-link" href="/"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+            <div class="page-heading">
+                <p class="eyebrow">LIVE MARKET RATES</p>
+                <h1>आज का <span>मंडी भाव</span></h1>
+                <p>राज्य, जिला और फसल चुनें — मंडी के न्यूनतम, अधिकतम और औसत भाव देखें।</p>
+            </div>
+
+            <section class="mandi-filters" aria-label="मंडी भाव खोजें">
+                <div>
+                    <label for="state" class="form-label">State</label>
+                    <select id="state" class="form-select" required>
+                        <option value="">State चुनें</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Punjab">Punjab</option>
+                        <option value="Haryana">Haryana</option>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Bihar">Bihar</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="district" class="form-label">District</label>
+                    <select id="district" class="form-select" disabled required>
+                        <option value="">पहले State चुनें</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="crop" class="form-label">Crop</label>
+                    <select id="crop" class="form-select" disabled required>
+                        <option value="">पहले District चुनें</option>
+                    </select>
+                </div>
+                <button id="mandi-price" class="btn btn-success" type="button" disabled>भाव देखें <i class="fa-solid fa-magnifying-glass"></i></button>
+            </section>
+            <p id="mandiStatus" class="status-message" role="status"></p>
+
+            <section id="priceResult" class="price-result" aria-live="polite">
+                <h5>मंडी भाव <small id="priceDate"></small></h5>
+                <p>Market: <strong id="marketName">-</strong></p>
+                <p>Crop: <strong id="cropName">-</strong></p>
+                <div class="price-box">
+                    <div><small>न्यूनतम भाव</small><strong id="minPrice">₹ -</strong></div>
+                    <div><small>अधिकतम भाव</small><strong id="maxPrice">₹ -</strong></div>
+                    <div><small>औसत भाव</small><strong id="modalPrice">₹ -</strong></div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <%- include('partials/script') %>
+</body>
+</html>

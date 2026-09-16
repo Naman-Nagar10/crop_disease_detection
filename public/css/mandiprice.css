@@ -1,8 +1,38 @@
 .price-result {
+    display: none;
     margin-top: 25px;
     padding: 18px;
     border-radius: 12px;
     background: #f5f8f5;
+}
+
+.price-result.is-visible { display: block; }
+
+.price-result.is-loading { opacity: .65; }
+
+.mandi-page .price-result {
+    margin-top: 2rem;
+    border: 1px solid #dbe8d6;
+    box-shadow: 0 10px 24px rgba(32, 67, 28, .08);
+}
+
+.mandi-page .mandi-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1.4rem;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e0e9dc;
+}
+
+.mandi-page .mandi-filters .btn { width: auto; margin-top: 0; align-self: end; }
+
+.mandi-page .status-message { margin: .9rem 0 0; color: #617965; min-height: 1.5em; }
+
+@media (max-width: 700px) {
+    .mandi-page .mandi-filters { grid-template-columns: 1fr; }
+    .mandi-page .mandi-filters .btn { width: 100%; }
 }
 
 .price-result h5 {

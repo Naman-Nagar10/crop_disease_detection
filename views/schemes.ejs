@@ -1,3 +1,182 @@
 <!DOCTYPE html>
-<html lang="hi"><head><%- include('partials/head') %><title>Government Schemes · Krishi Rakshak</title></head>
-<body><header><%- include('partials/navbar') %></header><div class="layout"><%- include('partials/sidebar') %><main class="main-content page-content"><a class="back-link" href="/"><i class="fa-solid fa-arrow-left"></i> Dashboard</a><div class="page-heading"><p class="eyebrow">सरकारी सहायता</p><h1>आपके लिए <span>Government Schemes</span></h1><p>खेती के लिए उपयोगी योजनाएं—eligibility और आवेदन की जानकारी के साथ।</p></div><div class="scheme-grid"><% schemes.forEach(scheme => { %><article class="scheme-card"><div class="scheme-icon"><i class="fa-solid fa-landmark"></i></div><span class="scheme-state"><i class="fa-solid fa-location-dot"></i> <%= scheme.state %></span><h3><%= scheme.title %></h3><p><%= scheme.description %></p><div class="benefit"><small>मुख्य लाभ</small><strong><%= scheme.benefit %></strong></div><a href="<%= scheme.link %>" target="_blank" rel="noopener" class="btn btn-success">Details देखें <i class="fa-solid fa-arrow-up-right-from-square"></i></a></article><% }) %></div></main></div></body></html>
+<html lang="hi">
+<head>
+    <%- include('partials/head') %>
+    <title>Government Schemes · Krishi Rakshak</title>
+
+</head>
+
+<body>
+
+    <header>
+        <%- include('partials/navbar') %>
+    </header>
+
+    <div class="layout">
+
+        <%- include('partials/sidebar') %>
+
+        <main class="main-content page-content scheme-page">
+
+            <a class="back-link" href="/">
+                <i class="fa-solid fa-arrow-left"></i>
+                Dashboard
+            </a>
+
+            <!-- HERO -->
+            <section class="scheme-hero" aria-label="Government scheme overview">
+
+                <div class="scheme-hero-copy">
+
+                    <div class="scheme-hero-badges">
+
+                        <span class="scheme-pill">
+                            <i class="fa-solid fa-hand-holding-heart"></i>
+                            सरकारी सहायता
+                        </span>
+
+                        <span class="scheme-pill">
+                            <i class="fa-solid fa-seedling"></i>
+                            कृषि विकास
+                        </span>
+
+                    </div>
+
+                    <h1>
+                        आपके लिए
+                        <span>Government Schemes</span>
+                    </h1>
+
+                    <p>
+                        खेती के लिए उपयोगी योजनाएं—eligibility और आवेदन की जानकारी के साथ।
+                    </p>
+
+                </div>
+
+
+                <!-- STATS -->
+                <div class="scheme-stats" aria-label="Scheme stats">
+
+                    <div class="stat-box">
+
+                        <small>कुल योजनाएं</small>
+
+                        <strong>
+                            <%= schemes && schemes.length ? schemes.length : 0 %>
+                        </strong>
+
+                    </div>
+
+                    <div class="stat-box">
+
+                        <small>राज्य</small>
+
+                        <strong>भारत</strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- SCHEMES -->
+            <% if (schemes && schemes.length) { %>
+
+                <div class="scheme-grid">
+
+                    <% schemes.forEach(scheme => { %>
+
+                        <article
+                            class="scheme-card"
+                            aria-label="<%= scheme.title %>"
+                        >
+
+                            <div class="scheme-header">
+
+                                <div class="scheme-icon">
+                                    <i class="fa-solid fa-landmark"></i>
+                                </div>
+
+                                <span class="scheme-state">
+
+                                    <i class="fa-solid fa-location-dot"></i>
+
+                                    <%= scheme.state %>
+
+                                </span>
+
+                            </div>
+
+
+                            <div>
+
+                                <h3>
+                                    <%= scheme.title %>
+                                </h3>
+
+                            </div>
+
+
+                            <p>
+                                <%= scheme.description %>
+                            </p>
+
+
+                            <div class="benefit">
+
+                                <small>मुख्य लाभ</small>
+
+                                <strong>
+                                    <%= scheme.benefit %>
+                                </strong>
+
+                            </div>
+
+
+                            <div class="scheme-actions">
+
+                                <a
+                                    href="<%= scheme.link %>"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="btn btn-success"
+                                >
+                                    Details देखें
+
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    <% }) %>
+
+                </div>
+
+            <% } else { %>
+
+                <!-- EMPTY STATE -->
+
+                <div class="empty-state">
+
+                    <h3>
+                        अभी कोई योजना उपलब्ध नहीं है
+                    </h3>
+
+                    <p>
+                        कृपया थोड़ी देर बाद फिर से देखें।
+                    </p>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+</body>
+</html>

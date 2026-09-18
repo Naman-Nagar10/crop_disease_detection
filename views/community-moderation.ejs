@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('partials/head') %>
+    <title>Community Moderation · Krishi Rakshak</title>
+  </head>
+
+  <body>
+    <header>
+      <%- include('partials/navbar') %>
+    </header>
+
+    <div class="layout">
+      <%- include('partials/sidebar') %>
+
+      <main class="main-content page-content community-page">
+        <p class="eyebrow">ADMIN</p>
+        <h1>Community Moderation</h1>
+
+        <section>
+          <h2>Pending Questions</h2>
+
+          <% if (!pendingQuestions.length) { %>
+            <p class="muted">कोई pending question नहीं है।</p>
+          <% } %>
+
+          <% pendingQuestions.forEach(item => { %>
+            <article class="community-card">
+              <h3><%= item.question %></h3>
+              <p>Asked by <%= item.author_name %></p>
+
+              <div class="community-actions">
+                <form method="post" action="/admin/community/questions/<%= item.id %>/approve">
+                  <button class="btn btn-success">Approve</button>
+                </form>
+
+                <form method="post" action="/admin/community/questions/<%= item.id %>/reject">
+                  <button class="btn btn-outline-danger">Reject</button>
+                </form>
+              </div>
+            </article>
+          <% }) %>
+        </section>
+
+        <section>
+          <h2>Pending Answers</h2>
+
+          <% if (!pendingAnswers.length) { %>
+            <p class="muted">कोई pending answer नहीं है।</p>
+          <% } %>
+
+          <% pendingAnswers.forEach(item => { %>
+
+            <article class="community-card">
+              <p><strong>Question:</strong> <%= item.question %></p>
+              <p><strong>Answer:</strong> <%= item.answer %></p>
+              <p>
+                Answered by <%= item.author_name %> ·
+                <%= new Date(item.created_at).toLocaleDateString('hi-IN') %>
+              </p>
+
+              <div class="community-actions">
+                <form method="post" action="/admin/community/answers/<%= item.id %>/approve">
+                  <button class="btn btn-success">✅ Approve</button>
+                </form>
+
+                <form method="post" action="/admin/community/answers/<%= item.id %>/reject">
+                  <button class="btn btn-outline-danger">🗑️ Reject</button>
+                </form>
+              </div>
+
+            </article>
+
+          <% }) %>
+        </section>
+
+        <section>
+          <h2>Approved Answers</h2>
+
+          <% approvedAnswers.forEach(item => { %>
+            <article class="community-card">
+              <p><strong><%= item.question %></strong></p>
+              <p><%= item.answer %> — <%= item.author_name %></p>
+
+              <form method="post" action="/admin/community/answers/<%= item.id %>/reject">
+                <button class="btn btn-outline-danger">Reject</button>
+              </form>
+            </article>
+          <% }) %>
+        </section>
+        
+      </main>
+    </div>
+
+  </body>
+
+</html>
+

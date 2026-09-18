@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('partials/head') %>
+    <title>Question · Kisan Community</title>
+  </head>
+
+  <body>
+
+    <header>
+      <%- include('partials/navbar') %>
+    </header>
+
+    <div class="layout">
+      <%- include('partials/sidebar') %>
+
+      <main class="main-content page-content community-page">
+        <a href="/community">← Kisan Community</a>
+
+        <article class="community-card">
+          <% if (question.category) { %>
+            <small><%= question.category %></small>
+          <% } %>
+
+          <h1><%= question.question %></h1>
+
+          <p>
+            Asked by <strong><%= question.asker_name %></strong>
+            ·
+            <%= new Date(question.created_at).toLocaleDateString('hi-IN') %>
+          </p>
+        </article>
+
+        <h2>Approved Answers</h2>
+
+        <% if (!answers.length) { %>
+          <p class="muted">अभी कोई approved answer नहीं है।</p>
+        <% } %>
+
+        <% answers.forEach(answer => { %>
+          <article class="community-card">
+            <strong><%= answer.answerer_name %></strong>
+            <p><%= answer.answer %></p>
+            <small><%= new Date(answer.created_at).toLocaleDateString('hi-IN') %></small>
+          </article>
+        <% }) %>
+
+        <section class="community-form">
+          <h2>Write an Answer</h2>
+
+          <form method="post" action="/community/questions/<%= question.id %>/answers">
+            <textarea
+              name="answer"
+              required
+              maxlength="4000"
+              placeholder="अपना उत्तर यहाँ लिखें..."
+            ></textarea>
+
+            <button class="btn btn-success" type="submit">Submit Answer</button>
+          </form>
+
+          <p class="muted">उत्तर review के बाद ही सार्वजनिक होगा।</p>
+        </section>
+      </main>
+    </div>
+    
+  </body>
+
+</html>
+

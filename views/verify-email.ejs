@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <%- include('partials/head') %>
+    <title>Email verification · Krishi Rakshak</title>
+</head>
+
+<body class="auth-page">
+
+    <main class="auth-wrapper">
+
+        <section class="auth-card">
+
+            <a class="auth-brand" href="/">
+                <span class="brand-icon">
+                    <i class="fa-solid fa-seedling"></i>
+                </span>
+                <span>Krishi Rakshak</span>
+            </a>
+
+            <p class="auth-eyebrow">
+                <i class="fa-solid fa-shield-halved"></i>
+                Account verification
+            </p>
+
+            <h1>Email verify करें</h1>
+
+            <p class="auth-subtitle">
+                आपके email पर भेजा गया 6-digit OTP डालें।
+            </p>
+
+            <% if (error) { %>
+                <div class="auth-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span><%= error %></span>
+                </div>
+            <% } %>
+
+            <% if (success) { %>
+                <div class="auth-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span><%= success %></span>
+                </div>
+            <% } %>
+
+            <form class="auth-form" method="post" action="/verify-email">
+
+                <div class="input-group-custom">
+                    <label for="email">Email address</label>
+                    <div class="input-box">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            required
+                            value="<%= email %>"
+                        >
+                    </div>
+                </div>
+
+                <div class="input-group-custom">
+                    <label for="otp">OTP</label>
+                    <div class="input-box">
+                        <i class="fa-solid fa-key"></i>
+                        <input
+                            id="otp"
+                            name="otp"
+                            inputmode="numeric"
+                            required
+                            minlength="6"
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            placeholder="123456"
+                        >
+                    </div>
+                </div>
+
+                <button class="auth-submit" type="submit">
+                    Verify करें
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+            </form>
+
+            <form method="post" action="/verify-email/resend" class="resend-form">
+                <input type="hidden" name="email" value="<%= email %>">
+                <button class="resend-btn" type="submit">
+                    OTP फिर से भेजें
+                </button>
+            </form>
+
+            <p class="auth-footer">
+                <i class="fa-solid fa-lock"></i>
+                Your verification is protected
+            </p>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

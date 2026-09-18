@@ -38,6 +38,11 @@
     </div>
 </a>
 
+<a href="/community" class="sidebar-btn navigation-link">
+    <i class="fa-light fa-people-group"></i>
+    <div><span>Kisan Community</span><small>Kisan se Kisan tak Gyaan</small></div>
+</a>
+
 <% if (user && user.role === 'admin') { %>
     <a href="/admin" class="sidebar-btn navigation-link">
         <i class="fa-light fa-shield-halved"></i>
@@ -45,6 +50,10 @@
             <span>Admin Panel</span>
             <small>Manage portal</small>
         </div>
+    </a>
+    <a href="/admin/community" class="sidebar-btn navigation-link">
+        <i class="fa-light fa-check-double"></i>
+        <div><span>Community Moderation</span><small>Review answers</small></div>
     </a>
 <% } %>
 

@@ -1,8 +1,6 @@
 const mysql = require("mysql2/promise");
 const crypto = require("crypto");
 
-// Database settings come from .env locally
-// and from Render Environment Variables after deployment.
 const config = {
     host: process.env.DB_HOST || "localhost",
     port: Number(process.env.DB_PORT || 3306),
@@ -24,7 +22,7 @@ const sslOptions = useSSL
 
 let pool;
 
-// Password ko secure hash mein convert karta hai.
+
 function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) {
     const passwordHash = crypto
         .scryptSync(password, salt, 64)
@@ -33,9 +31,26 @@ function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) {
     return `${salt}:${passwordHash}`;
 }
 
-// First time database, tables, admin account and default schemes create karega.
+async function columnExists(table, column) {
+    const [rows] = await pool.query(
+        `SELECT 1 FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+        [config.database, table, column]
+    );
+    return rows.length > 0;
+}
+
+async function addColumnIfMissing(table, column, definition) {
+    if (!(await columnExists(table, column))) {
+        await pool.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}`);
+        return true;
+    }
+    return false;
+}
+
+
 async function initializeDatabase() {
-    // This connection is used only to create the database if it does not exist.
+
     const setupConnection = await mysql.createConnection({
         host: config.host,
         port: config.port,
@@ -58,7 +73,7 @@ async function initializeDatabase() {
     pool = mysql.createPool({
         ...config,
 
-        // TiDB Cloud par DB_SSL=true se secure connection use hoga.
+  
         ssl: sslOptions,
 
         waitForConnections: true,
@@ -77,6 +92,75 @@ async function initializeDatabase() {
         )
     `);
 
+
+    const emailVerifiedWasAdded = await addColumnIfMissing(
+        "users", "email_verified", "BOOLEAN NOT NULL DEFAULT FALSE"
+    );
+    await addColumnIfMissing("users", "verification_status", "VARCHAR(20) NOT NULL DEFAULT 'pending'");
+    await addColumnIfMissing("users", "google_id", "VARCHAR(255) NULL UNIQUE");
+    await addColumnIfMissing("users", "profile_picture", "VARCHAR(500) NULL");
+
+    if (emailVerifiedWasAdded) {
+        await pool.query(
+            "UPDATE users SET email_verified = TRUE, verification_status = 'verified'"
+        );
+    }
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS user_sessions (
+            id CHAR(64) PRIMARY KEY,
+            user_id CHAR(36) NOT NULL,
+            expires_at DATETIME NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (user_id), INDEX (expires_at),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS email_verifications (
+            id CHAR(36) PRIMARY KEY,
+            user_id CHAR(36) NOT NULL,
+            code_hash CHAR(64) NOT NULL,
+            expires_at DATETIME NOT NULL,
+            consumed_at DATETIME NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (user_id), INDEX (expires_at),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS community_questions (
+            id CHAR(36) PRIMARY KEY,
+            user_id CHAR(36) NOT NULL,
+            question TEXT NOT NULL,
+            category VARCHAR(100) NULL,
+            status ENUM('pending','active','rejected','deleted') NOT NULL DEFAULT 'active',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            moderated_at DATETIME NULL,
+            moderated_by CHAR(36) NULL,
+            INDEX (status), INDEX (created_at),
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS community_answers (
+            id CHAR(36) PRIMARY KEY,
+            question_id CHAR(36) NOT NULL,
+            user_id CHAR(36) NOT NULL,
+            answer TEXT NOT NULL,
+            status ENUM('pending','approved','rejected','deleted') NOT NULL DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            approved_at DATETIME NULL,
+            approved_by CHAR(36) NULL,
+            INDEX (question_id), INDEX (status),
+            FOREIGN KEY (question_id) REFERENCES community_questions(id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `);
+
     // Government schemes table.
     await pool.query(`
         CREATE TABLE IF NOT EXISTS schemes (
@@ -90,7 +174,7 @@ async function initializeDatabase() {
         )
     `);
 
-    // Admin details .env / Render Environment variables se aayengi.
+    // Admin details .env
     const adminName = process.env.ADMIN_NAME;
     const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
     const adminPassword = process.env.ADMIN_PASSWORD;
@@ -103,7 +187,6 @@ async function initializeDatabase() {
         const passwordHash = hashPassword(adminPassword);
 
         if (admins.length) {
-            // Existing admin ko update karega.
             await pool.query(
                 `UPDATE users
                  SET name = ?, email = ?, password_hash = ?
@@ -111,7 +194,7 @@ async function initializeDatabase() {
                 [adminName, adminEmail, passwordHash, admins[0].id]
             );
         } else {
-            // First admin account create karega.
+  
             await pool.query(
                 `INSERT INTO users
                  (id, name, email, password_hash, role)
@@ -125,7 +208,7 @@ async function initializeDatabase() {
         );
     }
 
-    // Default schemes only first time add hongi.
+
     const [existingSchemes] = await pool.query(
         "SELECT id FROM schemes LIMIT 1"
     );
@@ -165,7 +248,6 @@ async function initializeDatabase() {
     }
 }
 
-// server.js is function ko database queries ke liye use karega.
 function db() {
     return pool;
 }

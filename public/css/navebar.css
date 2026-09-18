@@ -1,11 +1,9 @@
-/* ============================================
-   NAVBAR
-   ============================================ */
+
 
 .navbar {
     height: 64px;
 
-    /* Fixed sidebar (240px) ke baad se start */
+
     left: 240px;
     right: 0;
     width: auto;
@@ -27,9 +25,7 @@
     z-index: 1000;
 }
 
-/* ============================================
-   RIGHT SIDE OF NAVBAR
-   ============================================ */
+/* ======RIGHT SIDE OF NAVBAR============= */
 
 .navbar-right {
     display: flex;
@@ -38,9 +34,7 @@
     margin-left: auto;   /* right side pe push */
 }
 
-/* ============================================
-   NAV ICONS (logout button etc.)
-   ============================================ */
+/* ========NAV ICONS ========================= */
 
 .nav-icon {
     width: 40px;
@@ -64,11 +58,7 @@
     color: #14532d;
 }
 
-/* ============================================
-   MOBILE MENU BUTTON
-   Default: hidden on desktop/tablet.
-   Mobile pe responsive.css mein show hoga.
-   ============================================ */
+/* ========MOBILE MENU BUTTON======= */
 
 .mobile-menu-btn {
     display: none;
@@ -84,11 +74,7 @@
     cursor: pointer;
 }
 
-/* ============================================
-   MOBILE BRAND
-   Desktop pe visible (jab tak hidden na ho),
-   mobile pe hide ho jayega.
-   ============================================ */
+/* ======MOBILE BRAND========= */
 
 .mobile-brand {
     color: #1e522e;
@@ -104,9 +90,7 @@
     color: #5f954e;
 }
 
-/* ============================================
-   NAV LINKS
-   ============================================ */
+/*NAV LINKS */
 
 .nav-login,
 .nav-admin {
@@ -140,10 +124,7 @@
     gap: 6px;
 }
 
-/* ============================================
-   NETBOOK / SMALL LAPTOP (<=1199px)
-   Sidebar shrinks to 210px
-   ============================================ */
+/* ===========NETBOOK / SMALL LAPTOP (<=1199px) Sidebar shrinks to 210px======== */
 
 @media (max-width: 1199px) {
     .navbar {
@@ -154,10 +135,7 @@
     }
 }
 
-/* ============================================
-   TABLET (<=900px)
-   Sidebar hidden, navbar full width
-   ============================================ */
+/* =======TABLET (<=900px) Sidebar hidden, navbar full width============ */
 
 @media (max-width: 900px) {
     .navbar {
@@ -169,20 +147,15 @@
     }
 
     .mobile-brand {
-        display: flex;   /* tablet pe brand dikhe */
+        display: flex;   
     }
-
-    /* User chip aur admin link tablet pe hide */
     .user-chip,
     .nav-admin {
         display: none;
     }
 }
 
-/* ============================================
-   MOBILE (<=600px)
-   Button show, brand hide
-   ============================================ */
+/* =======MOBILE (<=600px) Button show, brand hide=========== */
 
 @media (max-width: 600px) {
     .navbar {
@@ -195,11 +168,11 @@
     }
 
     .mobile-menu-btn {
-        display: inline-grid;   /* ☰ button show */
+        display: inline-grid;  
     }
 
     .mobile-brand {
-        display: none;          /* brand name hide */
+        display: none;          
     }
 
     .nav-login {

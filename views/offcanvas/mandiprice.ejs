@@ -32,12 +32,13 @@
         <div class="mb-3">
             <label for="state" class="form-lable">State</label>
 
-            <select id="state" class="form-select" aria-label="Default select example">
-                <option selected>Select State</option>
-                <option value="up">Uttar Pradesh</option>
-                <option value="punjab">Punjab</option>
-                <option value="haryana">Haryana</option>
-                <option value="maharashtra">Maharashtra</option>
+            <select id="state" class="form-select" aria-label="State">
+                <option value="">State चुनें</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
             </select>
         </div>
 
@@ -47,7 +48,7 @@
             <label for="district" class="form-lable">District</label>
 
             <select id="district" class="form-select" disabled>
-                <option selected>Select District</option>
+                <option value="">Select District</option>
             </select>
         </div>
 
@@ -57,12 +58,7 @@
             <label for="crop" class="form-lable">Crop</label>
 
             <select id="crop" class="form-select" disabled>
-                <option selected>Select crop</option>
-                <option value="wheat">गेहूँ</option>
-                <option value="rice">चावल</option>
-                <option value="potato">आलू</option>
-                <option value="tomato">टमाटर</option>
-                <option value="onion">प्याज़</option>
+                <option value="">पहले District चुनें</option>
             </select>
         </div>
 
@@ -72,9 +68,11 @@
             भाव देखें 
         </button>
 
+        <p id="mandiStatus" class="status-message" role="status"></p>
+
 
         <div id="priceResult" class="price-result">
-            <h5>Mandi Price</h5>
+            <h5>Mandi Price <small id="priceDate"></small></h5>
 
             <p>Market: <span id="marketName">-</span></p>
             <p>Crop: <span id="cropName">-</span></p>

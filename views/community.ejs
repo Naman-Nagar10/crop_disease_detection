@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="hi">
+  <head>
+    <%- include('partials/head') %>
+    <title>Kisan Community · Krishi Rakshak</title>
+  </head>
+  <body>
+    <header>
+      <%- include('partials/navbar') %>
+    </header>
+
+    <div class="layout">
+      <%- include('partials/sidebar') %>
+
+      <main class="main-content page-content community-page">
+        <p class="eyebrow">किसान COMMUNITY</p>
+        <h1>किसान se <span>किसानों tak Gyaan</span></h1>
+        <p class="muted">खेती से जुड़े सवाल पूछें और दूसरे किसानों के अनुभव से सीखें।</p>
+
+        <section class="community-form">
+          <h2>+ Ask Question</h2>
+          <form method="post" action="/community/questions">
+            <textarea
+              name="question"
+              required
+              maxlength="2000"
+              placeholder="अपना खेती से जुड़ा सवाल लिखें..."
+            ></textarea>
+            <input
+              name="category"
+              maxlength="100"
+              placeholder="फसल / Category (optional)"
+            >
+            <button class="btn btn-success" type="submit">Question submit करें</button>
+          </form>
+        </section>
+
+        <div class="community-tabs">
+          <a href="#questions">Ask Questions</a>
+          <a href="#answers">Answers</a>
+        </div>
+
+        <section id="questions">
+          <h2>Ask Questions</h2>
+
+          <% if (!questions.length) { %>
+            <p class="muted">अभी कोई प्रश्न नहीं है। पहला प्रश्न आप पूछें।</p>
+          <% } %>
+
+          <% questions.forEach(question => { %>
+            <article class="community-card">
+              <% if (question.category) { %>
+                <small><%= question.category %></small>
+              <% } %>
+
+              <h3>
+                <a href="/community/questions/<%= question.id %>"><%= question.question %></a>
+              </h3>
+
+              <p>
+                Asked by: <strong><%= question.asker_name %></strong>
+                · <%= new Date(question.created_at).toLocaleDateString('hi-IN') %>
+                · Answers: <%= question.answer_count %>
+              </p>
+            </article>
+          <% }) %>
+        </section>
+
+        <section id="answers">
+          <h2>Answers</h2>
+
+          <% if (!answeredQuestions.length) { %>
+            <p class="muted">Approved answers यहाँ दिखाई देंगे।</p>
+          <% } %>
+
+          <% answeredQuestions.forEach(item => { %>
+            <article class="community-card">
+              <h3>
+                <a href="/community/questions/<%= item.id %>"><%= item.question %></a>
+              </h3>
+              <p><strong><%= item.answerer_name %></strong> का उत्तर</p>
+              <p><%= item.answer %></p>
+            </article>
+          <% }) %>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+
+

@@ -10,10 +10,10 @@
             <h2
                 class="offcanvas-title"
                 id="expertOffcanvasLabel">
-                सही सलाह, सही समय पर
+                 किसान <span>Community</span>
             </h2>
 
-            <p>अपने सवाल के साथ फसल और जिले की जानकारी दें।</p>
+            <p>किसान se किसानों tak Gyaan</p>
         </div>
     
         <button
@@ -27,17 +27,18 @@
 
     <div class="offcanvas-body">
 
-        <h4>Ask an Expert</h4>
-
-        <textarea
-            class="form-control"
-            rows="5"
-            placeholder="अपना सवाल यहाँ लिखें...">
-        </textarea>
-
-        <button class="btn btn-success mt-3">
-            Ask Question
-        </button>
+        <% if (!user) { %>
+            <p>सवाल पूछने के लिए पहले login करें।</p>
+            <a class="btn btn-success" href="/login">Login करें</a>
+        <% } else { %>
+            <h4>+ Ask Question</h4>
+            <form method="post" action="/community/questions">
+                <textarea class="form-control" name="question" rows="5" required maxlength="2000" placeholder="अपना खेती से जुड़ा सवाल यहाँ लिखें..."></textarea>
+                <input class="form-control mt-2" name="category" maxlength="100" placeholder="फसल / Category (optional)">
+                <button class="btn btn-success mt-3" type="submit">Question submit करें</button>
+            </form>
+            <a class="btn btn-outline-success mt-3" href="/community">सभी Questions और Answers देखें</a>
+        <% } %>
 
     </div>
 </div>

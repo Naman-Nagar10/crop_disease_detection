@@ -628,8 +628,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
 
-            /* Healthy ko Gemini par mat bhejna */
-
             if (
                 detectedDisease.toLowerCase() ===
                 "healthy"

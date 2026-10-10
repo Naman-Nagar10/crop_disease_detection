@@ -3,9 +3,7 @@ const crypto = require("crypto");
 
 require("dotenv").config();
 
-// =====================================================
 // DATABASE CONFIG
-// =====================================================
 
 const config = {
     host: process.env.DB_HOST || "localhost",
@@ -26,16 +24,12 @@ const sslOptions = useSSL
     : undefined;
 
 
-// =====================================================
 // DATABASE POOL
-// =====================================================
 
 let pool = null;
 
 
-// =====================================================
 // PASSWORD HASH
-// =====================================================
 
 function hashPassword(
     password,
@@ -49,9 +43,7 @@ function hashPassword(
 }
 
 
-// =====================================================
 // CHECK COLUMN
-// =====================================================
 
 async function columnExists(table, column) {
     if (!pool) {
@@ -74,9 +66,7 @@ async function columnExists(table, column) {
 }
 
 
-// =====================================================
 // ADD COLUMN IF MISSING
-// =====================================================
 
 async function addColumnIfMissing(table, column, definition) {
     if (!pool) {
@@ -98,9 +88,7 @@ async function addColumnIfMissing(table, column, definition) {
 }
 
 
-// =====================================================
 // CHECK INDEX
-// =====================================================
 
 async function indexExists(table, indexName) {
     if (!pool) {
@@ -123,9 +111,7 @@ async function indexExists(table, indexName) {
 }
 
 
-// =====================================================
 // INITIALIZE DATABASE
-// =====================================================
 
 async function initializeDatabase() {
 
@@ -134,9 +120,8 @@ async function initializeDatabase() {
     console.log(`Database Port: ${config.port}`);
     console.log(`Database Name: ${config.database}`);
 
-    // -------------------------------------------------
+
     // STEP 1: CONNECT WITHOUT DATABASE
-    // -------------------------------------------------
 
     let setupConnection;
 
@@ -151,10 +136,7 @@ async function initializeDatabase() {
 
         console.log("MySQL server connection successful.");
 
-        // -------------------------------------------------
         // CREATE DATABASE IF NOT EXISTS
-        // -------------------------------------------------
-
         await setupConnection.query(
             `
             CREATE DATABASE IF NOT EXISTS \`${config.database}\`
@@ -172,10 +154,7 @@ async function initializeDatabase() {
     }
 
 
-    // -------------------------------------------------
     // STEP 2: CREATE MAIN CONNECTION POOL
-    // -------------------------------------------------
-
     pool = mysql.createPool({
         host: config.host,
         port: config.port,
@@ -197,18 +176,14 @@ async function initializeDatabase() {
     console.log("MySQL connection pool created.");
 
 
-    // -------------------------------------------------
     // STEP 3: TEST POOL CONNECTION
-    // -------------------------------------------------
 
     await pool.query("SELECT 1");
 
     console.log("MySQL pool connection test successful.");
 
 
-    // =================================================
     // USERS TABLE
-    // =================================================
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS users (
@@ -224,10 +199,7 @@ async function initializeDatabase() {
     console.log("Users table ready.");
 
 
-    // =================================================
     // USERS MIGRATIONS
-    // =================================================
-
     const emailVerifiedWasAdded = await addColumnIfMissing(
         "users",
         "email_verified",
@@ -260,9 +232,7 @@ async function initializeDatabase() {
     );
 
 
-    // -------------------------------------------------
     // MARK OLD USERS VERIFIED
-    // -------------------------------------------------
 
     if (emailVerifiedWasAdded) {
         await pool.query(
@@ -275,9 +245,7 @@ async function initializeDatabase() {
     }
 
 
-    // -------------------------------------------------
     // GOOGLE ID UNIQUE INDEX
-    // -------------------------------------------------
 
     const googleIndexExists = await indexExists(
         "users",
@@ -305,9 +273,7 @@ async function initializeDatabase() {
     }
 
 
-    // =================================================
     // USER SESSIONS
-    // =================================================
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS user_sessions (
@@ -328,10 +294,7 @@ async function initializeDatabase() {
     console.log("User sessions table ready.");
 
 
-    // =================================================
     // EMAIL VERIFICATIONS
-    // =================================================
-
     await pool.query(`
         CREATE TABLE IF NOT EXISTS email_verifications (
             id CHAR(36) PRIMARY KEY,
@@ -353,10 +316,31 @@ async function initializeDatabase() {
     console.log("Email verification table ready.");
 
 
-    // =================================================
-    // COMMUNITY QUESTIONS
-    // =================================================
+    // PASSWORD RESET OTPs
 
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id CHAR(36) PRIMARY KEY,
+            user_id CHAR(36) NOT NULL,
+            code_hash CHAR(64) NOT NULL,
+            expires_at DATETIME NOT NULL,
+            consumed_at DATETIME NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+            INDEX (user_id),
+            INDEX (expires_at),
+
+            FOREIGN KEY (user_id)
+            REFERENCES users(id)
+            ON DELETE CASCADE
+        )
+    `);
+
+    console.log("Password reset table ready.");
+
+
+
+    // COMMUNITY QUESTIONS
     await pool.query(`
         CREATE TABLE IF NOT EXISTS community_questions (
             id CHAR(36) PRIMARY KEY,
@@ -387,9 +371,7 @@ async function initializeDatabase() {
     console.log("Community questions table ready.");
 
 
-    // =================================================
     // COMMUNITY ANSWERS
-    // =================================================
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS community_answers (
@@ -425,9 +407,7 @@ async function initializeDatabase() {
     console.log("Community answers table ready.");
 
 
-    // =================================================
     // GOVERNMENT SCHEMES
-    // =================================================
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS schemes (
@@ -444,9 +424,7 @@ async function initializeDatabase() {
     console.log("Schemes table ready.");
 
 
-    // =================================================
     // ADMIN ACCOUNT
-    // =================================================
 
     const adminName = process.env.ADMIN_NAME?.trim();
     const adminEmail = process.env.ADMIN_EMAIL
@@ -522,9 +500,7 @@ async function initializeDatabase() {
     }
 
 
-    // =================================================
     // DEFAULT GOVERNMENT SCHEMES
-    // =================================================
 
     const [existingSchemes] = await pool.query(
         "SELECT id FROM schemes LIMIT 1"
@@ -581,9 +557,9 @@ async function initializeDatabase() {
     }
 
 
-    // =================================================
+    
     // INITIALIZATION COMPLETE
-    // =================================================
+    
 
     console.log("MySQL database initialization completed successfully.");
 
@@ -591,9 +567,8 @@ async function initializeDatabase() {
 }
 
 
-// =====================================================
 // DATABASE ACCESS
-// =====================================================
+
 
 function db() {
 
@@ -607,9 +582,7 @@ function db() {
 }
 
 
-// =====================================================
 // EXPORTS
-// =====================================================
 
 module.exports = {
     initializeDatabase,

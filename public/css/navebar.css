@@ -184,3 +184,19 @@
         padding: 6px 10px !important;
     }
 }
+
+.user-profile-link {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.user-profile-link img {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 2px solid rgba(25, 135, 84, 0.25);
+    background: #eaf6ef;
+}

@@ -12,7 +12,14 @@
     <a class="mobile-brand" href="/"><i class="fa-solid fa-seedling"></i> Krishi Rakshak</a>
     <div class="navbar-right">
         <% if (user) { %>
-            <span class="user-chip"><i class="fa-solid fa-circle-user"></i> <%= user.name %></span>
+            <a class="user-chip user-profile-link" href="/profile">
+                <% if (user.profile_picture) { %>
+                    <img src="<%= user.profile_picture %>" alt="Profile">
+                <% } else { %>
+                    <i class="fa-solid fa-circle-user"></i>
+                <% } %>
+                <span><%= user.name %></span>
+            </a>
             <% if (user.role === 'admin') { %><a class="nav-admin" href="/admin">Admin panel</a><% } %>
             <form method="post" action="/logout"><button class="nav-icon" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button></form>
         <% } else { %>

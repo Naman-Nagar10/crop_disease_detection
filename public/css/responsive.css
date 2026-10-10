@@ -1,5 +1,4 @@
 /*
-  RESPONSIVE RULES
   Desktop: 1200px and above
   Netbook: 901px to 1199px
   Tablet: 601px to 900px
@@ -88,7 +87,7 @@
         gap: 6px;
     }
 
-    /* Hide the long brand name; show a simple three-line menu icon instead. */
+    /* Hide the long brand name;  three-line menu icon instead. */
     .mobile-brand {
         display: none;
     }

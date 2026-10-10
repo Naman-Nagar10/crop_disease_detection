@@ -163,3 +163,8 @@
     color: #183a2a;
     transform: translateY(-1px);
 }
+
+#mandi button {
+    background-color: #5f954e;
+    color: #fff;
+}

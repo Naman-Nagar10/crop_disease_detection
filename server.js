@@ -15,6 +15,27 @@ const app = express();
 const port = process.env.PORT || 8080;
 const upload = multer({ dest: path.join(__dirname, "uploads") });
 
+const profileUpload = multer({
+    storage: multer.diskStorage({
+        destination: (request, file, callback) => {
+            const directory = path.join(__dirname, "uploads", "profiles");
+            fs.mkdirSync(directory, { recursive: true });
+            callback(null, directory);
+        },
+        filename: (request, file, callback) => {
+            const extension = path.extname(file.originalname || "").toLowerCase() || ".jpg";
+            callback(null, `${crypto.randomUUID()}${extension}`);
+        }
+    }),
+    limits: { fileSize: 2 * 1024 * 1024 },
+    fileFilter: (request, file, callback) => {
+        if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) {
+            return callback(null, true);
+        }
+        callback(new Error("Only JPG, PNG, WEBP or GIF images are allowed."));
+    }
+});
+
 const COOKIE_NAME = "krishi_session";
 const SESSION_AGE_SECONDS = 60 * 60 * 24;
 
@@ -103,7 +124,7 @@ app.use(async (request, response, next) => {
 
         if (sessionId) {
             const [users] = await db().query(
-                `SELECT u.id, u.name, u.email, u.role, u.email_verified
+                `SELECT u.id, u.name, u.email, u.role, u.email_verified, u.profile_picture
                  FROM user_sessions s JOIN users u ON u.id = s.user_id
                  WHERE s.id = ? AND s.expires_at > NOW()`,
                 [sessionId]
@@ -125,11 +146,259 @@ app.get("/", (request, response) => {
 });
 
 app.get("/login", (request, response) => {
-    response.render("auth", { mode: "login", error: null });
+    response.render("auth", {
+        mode: "login",
+        error: null,
+        success: request.query.reset === "success"
+            ? "Password successfully reset हो गया। अब नए password से login करें।"
+            : null
+    });
 });
 
 app.get("/signup", (request, response) => {
     response.render("auth", { mode: "signup", error: null });
+});
+
+
+// ---------- Password reset ----------
+
+async function sendPasswordResetOtp(user) {
+    if (!process.env.BREVO_SMTP_LOGIN || !process.env.BREVO_SMTP_KEY || !process.env.EMAIL_FROM) {
+        throw new Error("Brevo SMTP is not configured.");
+    }
+
+    const otp = makeOtp();
+
+    await db().query(
+        "UPDATE password_resets SET consumed_at = NOW() WHERE user_id = ? AND consumed_at IS NULL",
+        [user.id]
+    );
+
+    await db().query(
+        "INSERT INTO password_resets (id, user_id, code_hash, expires_at) VALUES (?, ?, SHA2(?, 256), DATE_ADD(NOW(), INTERVAL 10 MINUTE))",
+        [crypto.randomUUID(), user.id, otp]
+    );
+
+    const transporter = nodemailer.createTransport({
+        host: "smtp-relay.brevo.com",
+        port: 2525,
+        secure: false,
+        auth: {
+            user: process.env.BREVO_SMTP_LOGIN,
+            pass: process.env.BREVO_SMTP_KEY
+        }
+    });
+
+    await transporter.sendMail({
+        from: process.env.EMAIL_FROM,
+        to: user.email,
+        subject: "Krishi Rakshak password reset OTP",
+        text: `Namaste ${user.name}, आपका password reset OTP है: ${otp}. यह 10 मिनट तक valid है।`
+    });
+}
+
+app.get("/forgot-password", (request, response) => {
+    response.render("forgot-password", {
+        error: null,
+        success: null,
+        email: ""
+    });
+});
+
+app.post("/forgot-password", async (request, response, next) => {
+    try {
+        const email = request.body.email?.trim().toLowerCase();
+        const isValidEmail = /^\S+@\S+\.\S+$/.test(email || "");
+
+        if (!isValidEmail) {
+            return response.status(400).render("forgot-password", {
+                error: "कृपया सही email address डालें।",
+                success: null,
+                email: email || ""
+            });
+        }
+
+        const [[user]] = await db().query(
+            "SELECT id, name, email FROM users WHERE email = ?",
+            [email]
+        );
+
+        // Keep the response generic so an email address cannot be used
+        // to discover whether an account exists.
+        if (!user) {
+            return response.render("forgot-password", {
+                error: null,
+                success: "अगर इस email से account मौजूद है, तो OTP भेज दिया गया है।",
+                email
+            });
+        }
+
+        await sendPasswordResetOtp(user);
+
+        response.render("forgot-password", {
+            error: null,
+            success: "OTP आपके email पर भेज दिया गया है। यह 10 मिनट तक valid है।",
+            email
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.get("/reset-password", (request, response) => {
+    response.render("reset-password", {
+        error: null,
+        email: request.query.email || ""
+    });
+});
+
+app.post("/reset-password", async (request, response, next) => {
+    try {
+        const email = request.body.email?.trim().toLowerCase();
+        const otp = request.body.otp?.trim();
+        const password = request.body.password || "";
+        const confirmPassword = request.body.confirm_password || "";
+
+        if (!email || !otp || password.length < 6 || password !== confirmPassword) {
+            return response.status(400).render("reset-password", {
+                error: password !== confirmPassword
+                    ? "दोनों passwords समान होने चाहिए।"
+                    : "Email, OTP और कम-से-कम 6 अक्षर का नया password डालें।",
+                email
+            });
+        }
+
+        const [[user]] = await db().query(
+            "SELECT id, name, email, role FROM users WHERE email = ?",
+            [email]
+        );
+
+        if (!user) {
+            return response.status(400).render("reset-password", {
+                error: "Invalid reset request.",
+                email
+            });
+        }
+
+        const [[reset]] = await db().query(
+            `SELECT id
+             FROM password_resets
+             WHERE user_id = ?
+               AND code_hash = SHA2(?, 256)
+               AND consumed_at IS NULL
+               AND expires_at > NOW()
+             ORDER BY created_at DESC
+             LIMIT 1`,
+            [user.id, otp]
+        );
+
+        if (!reset) {
+            return response.status(400).render("reset-password", {
+                error: "OTP गलत है या expire हो गया है।",
+                email
+            });
+        }
+
+        await db().query(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            [hashPassword(password), user.id]
+        );
+
+        await db().query(
+            "UPDATE password_resets SET consumed_at = NOW() WHERE id = ?",
+            [reset.id]
+        );
+
+        // Invalidate all existing sessions after a password change.
+        await db().query(
+            "DELETE FROM user_sessions WHERE user_id = ?",
+            [user.id]
+        );
+
+        response.redirect("/login?reset=success");
+    } catch (error) {
+        next(error);
+    }
+});
+
+// ---------- Profile ----------
+
+app.get("/profile", requireLogin, (request, response) => {
+    response.render("profile", {
+        error: null,
+        success: null
+    });
+});
+
+app.post("/profile", requireLogin, (request, response, next) => {
+    profileUpload.single("profile_picture")(request, response, async (uploadError) => {
+        try {
+            if (uploadError) {
+                return response.status(400).render("profile", {
+                    error: uploadError.code === "LIMIT_FILE_SIZE"
+                        ? "Profile picture अधिकतम 2 MB की होनी चाहिए।"
+                        : uploadError.message,
+                    success: null
+                });
+            }
+
+            const name = request.body.name?.trim();
+
+            if (!name || name.length > 100) {
+                if (request.file) fs.unlink(request.file.path, () => {});
+                return response.status(400).render("profile", {
+                    error: "कृपया सही नाम डालें।",
+                    success: null
+                });
+            }
+
+            let profilePicture = request.user.profile_picture || null;
+
+            if (request.file) {
+                profilePicture = `/profile-picture/${path.basename(request.file.path)}`;
+
+                // Delete the previous locally uploaded profile image.
+                if (request.user.profile_picture?.startsWith("/profile-picture/")) {
+                    const previousFile = path.join(
+                        __dirname,
+                        "uploads",
+                        "profiles",
+                        path.basename(request.user.profile_picture)
+                    );
+                    fs.unlink(previousFile, () => {});
+                }
+            }
+
+            await db().query(
+                "UPDATE users SET name = ?, profile_picture = ? WHERE id = ?",
+                [name, profilePicture, request.user.id]
+            );
+
+            // Keep the current request's user object in sync.
+            request.user.name = name;
+            request.user.profile_picture = profilePicture;
+            response.locals.user = request.user;
+
+            response.render("profile", {
+                error: null,
+                success: "Profile successfully update हो गया।"
+            });
+        } catch (error) {
+            if (request.file) fs.unlink(request.file.path, () => {});
+            next(error);
+        }
+    });
+});
+
+app.get("/profile-picture/:filename", requireLogin, (request, response) => {
+    const filename = path.basename(request.params.filename);
+    const filePath = path.join(__dirname, "uploads", "profiles", filename);
+
+    if (!fs.existsSync(filePath)) {
+        return response.status(404).end();
+    }
+
+    response.sendFile(filePath);
 });
 
 function makeOtp() {
@@ -535,101 +804,10 @@ app.post("/admin/community/questions/:id/:action", requireLogin, requireAdmin, a
 });
 
 // ---------- Mandi price API ----------
-// Everything comes from data.gov.in. No hard-coded State/District/Crop lists.
 
-function fetchMandiData(params = {}) {
-    return new Promise((resolve, reject) => {
-        if (!process.env.MANDI_API_KEY || !process.env.MANDI_RESOURCE_ID) {
-            return reject(new Error("MANDI_API_KEY or MANDI_RESOURCE_ID is missing"));
-        }
+const MANDI_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
-        const mandiUrl = new URL(
-            `https://api.data.gov.in/resource/${process.env.MANDI_RESOURCE_ID}`
-        );
-
-        mandiUrl.searchParams.set("api-key", process.env.MANDI_API_KEY);
-        mandiUrl.searchParams.set("format", "json");
-
-        // Keep each request reasonably small.
-        mandiUrl.searchParams.set("limit", params.limit || "1000");
-
-        if (params.offset) {
-            mandiUrl.searchParams.set("offset", params.offset);
-        }
-
-        if (params.state) {
-            mandiUrl.searchParams.set("filters[state]", params.state);
-        }
-
-        if (params.district) {
-            mandiUrl.searchParams.set("filters[district]", params.district);
-        }
-
-        if (params.commodity) {
-            mandiUrl.searchParams.set("filters[commodity]", params.commodity);
-        }
-
-        const request = https.get(
-            mandiUrl,
-            {
-                family: 4,
-                timeout: 15000,
-                headers: {
-                    Accept: "application/json",
-                    "User-Agent": "Krishi-Rakshak/1.0"
-                }
-            },
-            (apiResponse) => {
-                let body = "";
-
-                apiResponse.setEncoding("utf8");
-
-                apiResponse.on("data", (chunk) => {
-                    body += chunk;
-                });
-
-                apiResponse.on("end", () => {
-                    let data;
-
-                    try {
-                        data = JSON.parse(body);
-                    } catch {
-                        return reject(
-                            new Error(
-                                `Mandi API returned invalid JSON (HTTP ${apiResponse.statusCode})`
-                            )
-                        );
-                    }
-
-                    if (apiResponse.statusCode < 200 || apiResponse.statusCode >= 300) {
-                        const message =
-                            data?.error ||
-                            data?.message ||
-                            `Mandi API returned HTTP ${apiResponse.statusCode}`;
-
-                        const error = new Error(message);
-                        error.statusCode = apiResponse.statusCode;
-                        error.apiData = data;
-                        return reject(error);
-                    }
-
-                    resolve(data);
-                });
-            }
-        );
-
-        request.on("timeout", () => {
-            request.destroy(new Error("Mandi API connection timed out"));
-        });
-
-        request.on("error", reject);
-    });
-}
-
-// Cache dropdown data for 30 minutes.
-// This avoids repeatedly downloading the same data from data.gov.in.
-const mandiOptionsCache = {
-    states: { expires: 0, values: [] },
+const mandiCache = {
     districts: new Map(),
     crops: new Map()
 };
@@ -637,204 +815,495 @@ const mandiOptionsCache = {
 function uniqueSorted(values) {
     return [...new Set(
         values
-            .map((value) => String(value || "").trim())
+            .map(v => String(v || "").trim())
             .filter(Boolean)
     )].sort((a, b) => a.localeCompare(b));
 }
 
-async function getAllMandiRecords(filters = {}) {
-    const allRecords = [];
-    const pageSize = 1000;
-    let offset = 0;
-    const maxPages = 100; // safety limit: maximum 100,000 records
 
-    for (let page = 0; page < maxPages; page += 1) {
-        const data = await fetchMandiData({
-            ...filters,
-            limit: pageSize,
-            offset
+// DATA.GOV.IN API
+
+function fetchMandiData(params = {}) {
+
+    return new Promise((resolve, reject) => {
+
+        if (
+            !process.env.MANDI_API_KEY ||
+            !process.env.MANDI_RESOURCE_ID
+        ) {
+            return reject(
+                new Error("Mandi API .env में configured नहीं है।")
+            );
+        }
+
+        const url = new URL(
+            `https://api.data.gov.in/resource/${process.env.MANDI_RESOURCE_ID}`
+        );
+
+        url.searchParams.set(
+            "api-key",
+            process.env.MANDI_API_KEY
+        );
+
+        url.searchParams.set("format", "json");
+
+        url.searchParams.set(
+            "limit",
+            String(params.limit || 1000)
+        );
+
+        if (params.offset) {
+            url.searchParams.set(
+                "offset",
+                String(params.offset)
+            );
+        }
+
+        if (params.state) {
+            url.searchParams.set(
+                "filters[state]",
+                params.state
+            );
+        }
+
+        if (params.district) {
+            url.searchParams.set(
+                "filters[district]",
+                params.district
+            );
+        }
+
+        if (params.commodity) {
+            url.searchParams.set(
+                "filters[commodity]",
+                params.commodity
+            );
+        }
+
+
+        const req = https.get(
+            url,
+            {
+                family: 4,
+                timeout: 15000,
+
+                headers: {
+                    Accept: "application/json",
+                    "User-Agent": "Krishi-Rakshak/1.0"
+                }
+            },
+
+            apiResponse => {
+
+                let body = "";
+
+                apiResponse.setEncoding("utf8");
+
+                apiResponse.on("data", chunk => {
+                    body += chunk;
+                });
+
+                apiResponse.on("end", () => {
+
+                    let data;
+
+                    try {
+                        data = JSON.parse(body);
+                    }
+
+                    catch {
+                        return reject(
+                            new Error(
+                                `Mandi API invalid response (HTTP ${apiResponse.statusCode})`
+                            )
+                        );
+                    }
+
+
+                    if (
+                        apiResponse.statusCode < 200 ||
+                        apiResponse.statusCode >= 300
+                    ) {
+
+                        const error = new Error(
+                            data?.error ||
+                            data?.message ||
+                            `Mandi API HTTP ${apiResponse.statusCode}`
+                        );
+
+                        error.statusCode =
+                            apiResponse.statusCode;
+
+                        return reject(error);
+                    }
+
+
+                    resolve(data);
+
+                });
+
+            }
+        );
+
+
+        req.on("timeout", () => {
+            req.destroy(
+                new Error("Mandi API timeout")
+            );
         });
 
-        const records = Array.isArray(data?.records) ? data.records : [];
-        allRecords.push(...records);
 
-        if (records.length < pageSize) break;
+        req.on("error", reject);
 
-        offset += pageSize;
-    }
+    });
 
-    return allRecords;
 }
 
-app.get("/api/mandi-prices", requireVerifiedApi, async (request, response) => {
-    try {
-        const { type, state, district, commodity } = request.query;
 
-        // 1. State dropdown: States are read from the API dataset.
-        if (type === "states") {
-            if (
-                mandiOptionsCache.states.expires > Date.now() &&
-                mandiOptionsCache.states.values.length
-            ) {
-                return response.json({
-                    success: true,
-                    type: "states",
-                    values: mandiOptionsCache.states.values
-                });
-            }
 
-            const records = await getAllMandiRecords();
+// GET ALL RECORDS
 
-            const states = uniqueSorted(
-                records.map((row) => row.state)
-            );
+async function getAllMandiRecords(filters = {}) {
 
-            if (!states.length) {
-                return response.status(404).json({
-                    success: false,
-                    message: "API से कोई State नहीं मिली।"
-                });
-            }
+    const records = [];
 
-            mandiOptionsCache.states = {
-                expires: Date.now() + 30 * 60 * 1000,
-                values: states
-            };
+    const pageSize = 1000;
 
-            return response.json({
-                success: true,
-                type: "states",
-                values: states
+    let offset = 0;
+
+    const maxPages = 100;
+
+
+    for (
+        let page = 0;
+        page < maxPages;
+        page++
+    ) {
+
+        const data =
+            await fetchMandiData({
+
+                ...filters,
+
+                limit: pageSize,
+
+                offset
+
             });
+
+
+        const pageRecords =
+            Array.isArray(data?.records)
+                ? data.records
+                : [];
+
+
+        records.push(...pageRecords);
+
+
+        if (
+            pageRecords.length < pageSize
+        ) {
+            break;
         }
 
-        // State is required for all other option/price requests.
-        if (!state) {
-            return response.status(400).json({
-                success: false,
-                message: "State required है।"
-            });
-        }
 
-        // 2. District dropdown: only districts belonging to selected State.
-        if (type === "districts") {
-            const cacheKey = state;
-            const cached = mandiOptionsCache.districts.get(cacheKey);
+        offset += pageSize;
 
-            if (cached && cached.expires > Date.now()) {
-                return response.json({
-                    success: true,
-                    type: "districts",
-                    values: cached.values
-                });
-            }
-
-            const records = await getAllMandiRecords({ state });
-
-            const districts = uniqueSorted(
-                records.map((row) => row.district)
-            );
-
-            if (!districts.length) {
-                return response.status(404).json({
-                    success: false,
-                    message: "इस State के लिए API से कोई District नहीं मिली।"
-                });
-            }
-
-            mandiOptionsCache.districts.set(cacheKey, {
-                expires: Date.now() + 30 * 60 * 1000,
-                values: districts
-            });
-
-            return response.json({
-                success: true,
-                type: "districts",
-                values: districts
-            });
-        }
-
-        if (!district) {
-            return response.status(400).json({
-                success: false,
-                message: "District required है।"
-            });
-        }
-
-        // 3. Crop dropdown: only crops available in selected State + District.
-        if (type === "crops") {
-            const cacheKey = `${state}|||${district}`;
-            const cached = mandiOptionsCache.crops.get(cacheKey);
-
-            if (cached && cached.expires > Date.now()) {
-                return response.json({
-                    success: true,
-                    type: "crops",
-                    values: cached.values
-                });
-            }
-
-            const records = await getAllMandiRecords({
-                state,
-                district
-            });
-
-            const crops = uniqueSorted(
-                records.map((row) => row.commodity)
-            );
-
-            if (!crops.length) {
-                return response.status(404).json({
-                    success: false,
-                    message: "इस District के लिए API से कोई Crop नहीं मिली।"
-                });
-            }
-
-            mandiOptionsCache.crops.set(cacheKey, {
-                expires: Date.now() + 30 * 60 * 1000,
-                values: crops
-            });
-
-            return response.json({
-                success: true,
-                type: "crops",
-                values: crops
-            });
-        }
-
-        // 4. Final price request.
-        if (!commodity) {
-            return response.status(400).json({
-                success: false,
-                message: "Crop required है।"
-            });
-        }
-
-        const data = await fetchMandiData({
-            state,
-            district,
-            commodity,
-            limit: 1000
-        });
-
-        return response.json({
-            success: true,
-            records: Array.isArray(data?.records) ? data.records : []
-        });
-
-    } catch (error) {
-        console.error("Mandi API error:", error.message);
-        if (error.apiData) {
-            console.error("Mandi API response:", error.apiData);
-        }
-
-        return response.status(error.statusCode || 502).json({
-            success: false,
-            message: error.message || "Mandi API से data नहीं मिल सका।"
-        });
     }
-});
 
+
+    return records;
+}
+
+
+
+// MANDI ROUTE
+
+app.get(
+    "/api/mandi-prices",
+    async (req, res) => {
+
+        try {
+
+            const {
+                type,
+                state,
+                district,
+                commodity
+            } = req.query;
+
+
+
+            // DISTRICT
+            if (type === "districts") {
+
+                if (!state) {
+
+                    return res.status(400).json({
+                        success: false,
+                        message: "State required है।"
+                    });
+
+                }
+
+
+                const cacheKey = state.trim();
+
+                const cached =
+                    mandiCache.districts.get(
+                        cacheKey
+                    );
+
+
+                if (
+                    cached &&
+                    cached.expires > Date.now()
+                ) {
+
+                    return res.json({
+                        success: true,
+                        values: cached.values
+                    });
+
+                }
+
+
+                console.log(
+                    `Loading districts for: ${state}`
+                );
+
+
+                const records =
+                    await getAllMandiRecords({
+                        state
+                    });
+
+
+                const districts =
+                    uniqueSorted(
+                        records.map(
+                            row => row.district
+                        )
+                    );
+
+
+                if (!districts.length) {
+
+                    return res.status(404).json({
+
+                        success: false,
+
+                        message:
+                            "इस State के लिए District नहीं मिली।"
+
+                    });
+
+                }
+
+
+                mandiCache.districts.set(
+                    cacheKey,
+                    {
+                        values: districts,
+
+                        expires:
+                            Date.now() +
+                            MANDI_CACHE_TTL
+                    }
+                );
+
+
+                return res.json({
+
+                    success: true,
+
+                    values: districts
+
+                });
+
+            }
+
+
+
+            // CROP
+
+            if (type === "crops") {
+
+                if (!state || !district) {
+
+                    return res.status(400).json({
+
+                        success: false,
+
+                        message:
+                            "State और District required हैं।"
+
+                    });
+
+                }
+
+
+                const cacheKey =
+                    `${state}|||${district}`;
+
+
+                const cached =
+                    mandiCache.crops.get(
+                        cacheKey
+                    );
+
+
+                if (
+                    cached &&
+                    cached.expires > Date.now()
+                ) {
+
+                    return res.json({
+
+                        success: true,
+
+                        values: cached.values
+
+                    });
+
+                }
+
+
+                console.log(
+                    `Loading crops for: ${state} / ${district}`
+                );
+
+
+                const records =
+                    await getAllMandiRecords({
+
+                        state,
+
+                        district
+
+                    });
+
+
+                const crops =
+                    uniqueSorted(
+                        records.map(
+                            row => row.commodity
+                        )
+                    );
+
+
+                if (!crops.length) {
+
+                    return res.status(404).json({
+
+                        success: false,
+
+                        message:
+                            "इस District के लिए Crop नहीं मिली।"
+
+                    });
+
+                }
+
+
+                mandiCache.crops.set(
+                    cacheKey,
+                    {
+
+                        values: crops,
+
+                        expires:
+                            Date.now() +
+                            MANDI_CACHE_TTL
+
+                    }
+                );
+
+
+                return res.json({
+
+                    success: true,
+
+                    values: crops
+
+                });
+
+            }
+
+
+
+            // FINAL MANDI PRICE
+            if (
+                !state ||
+                !district ||
+                !commodity
+            ) {
+
+                return res.status(400).json({
+
+                    success: false,
+
+                    message:
+                        "State, District और Crop required हैं।"
+
+                });
+
+            }
+
+
+            const data =
+                await fetchMandiData({
+
+                    state,
+
+                    district,
+
+                    commodity,
+
+                    limit: 1000
+
+                });
+
+
+            return res.json({
+
+                success: true,
+
+                records:
+                    Array.isArray(data?.records)
+                        ? data.records
+                        : []
+
+            });
+
+        }
+
+
+        catch (error) {
+
+            console.error(
+                "Mandi API error:",
+                error.message
+            );
+
+
+            return res.status(
+                error.statusCode || 502
+            ).json({
+
+                success: false,
+
+                message:
+                    error.message ||
+                    "Mandi API से data नहीं मिल सका।"
+
+            });
+
+        }
+
+    }
+);
 
 
 // ---------- AI chat ----------

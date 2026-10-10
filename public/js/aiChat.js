@@ -23,6 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const sendIcon =
         document.querySelector("#send-icon");
 
+    const voiceBtn =
+        document.querySelector("#voiceInput");
+
+    const voiceIcon =
+        document.querySelector("#voice-icon");
+
 
     /* ================= SAFETY CHECK ================= */
 
@@ -82,6 +88,67 @@ document.addEventListener("DOMContentLoaded", () => {
             25
         );
 
+    }
+
+
+    /* ================= VOICE INPUT ================= */
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    let recognition = null;
+    let isListening = false;
+
+    if (voiceBtn && SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = "hi-IN";
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+            isListening = true;
+            voiceBtn.classList.add("listening");
+            voiceBtn.title = "Listening...";
+            voiceIcon.className = "fa-solid fa-microphone-lines";
+        };
+
+        recognition.onresult = (event) => {
+            let transcript = "";
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+
+            question.value = transcript;
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Voice input error:", event.error);
+
+            if (event.error === "not-allowed") {
+                alert("Microphone permission allow करें और फिर कोशिश करें।");
+            }
+        };
+
+        recognition.onend = () => {
+            isListening = false;
+            voiceBtn.classList.remove("listening");
+            voiceBtn.title = "Voice input";
+            voiceIcon.className = "fa-solid fa-microphone";
+        };
+
+        voiceBtn.addEventListener("click", () => {
+            if (isListening) {
+                recognition.stop();
+                return;
+            }
+
+            recognition.start();
+        });
+    } else if (voiceBtn) {
+        voiceBtn.disabled = true;
+        voiceBtn.title = "इस browser में voice input supported नहीं है";
     }
 
 

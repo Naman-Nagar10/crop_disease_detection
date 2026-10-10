@@ -35,6 +35,13 @@
                     : 'अपना account बनाकर Krishi Rakshak की सुविधाएँ पाएं।' %>
             </p>
 
+            <% if (typeof success !== 'undefined' && success) { %>
+                <div class="auth-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span><%= success %></span>
+                </div>
+            <% } %>
+
             <% if (error) { %>
                 <div class="auth-error">
                     <i class="fa-solid fa-circle-exclamation"></i>
@@ -97,6 +104,12 @@
                 </button>
 
             </form>
+
+            <% if (mode === 'login') { %>
+                <div class="forgot-link">
+                    <a href="/forgot-password">Forgot password?</a>
+                </div>
+            <% } %>
 
             <div class="divider">
                 <span></span>

@@ -1,7 +1,7 @@
 
 //
-const DATA_GOV_API_KEY = "579b464db66ec23bdd000001e07fb9fbfe594ac069927fdb4606b976";
-const DATA_GOV_RESOURCE_ID = "9ef84268-d588-465a-a308-a864a43d0070";
+const DATA_GOV_API_KEY = "";
+const DATA_GOV_RESOURCE_ID = "";
 const DATA_GOV_URL = `https://api.data.gov.in/resource/${DATA_GOV_RESOURCE_ID}`;
 
 function initializeMandiPrice() {
